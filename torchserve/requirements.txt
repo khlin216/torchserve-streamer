@@ -1,0 +1,7 @@
+facenet-pytorch===2.5.2
+streamlink===4.2.0
+opencv-python===4.6.0.66
+mmcv===1.6.0
+model-archiver===1.0.3
+torchserve===0.6.0
+opencv-python===4.6.0.66

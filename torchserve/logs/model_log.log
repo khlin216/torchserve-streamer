@@ -1,0 +1,211 @@
+2022-07-14T22:58:34,523 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2022-07-14T22:58:34,524 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - [PID]22634
+2022-07-14T22:58:34,524 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Torch worker started.
+2022-07-14T22:58:34,525 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Python runtime: 3.9.7
+2022-07-14T22:58:34,537 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2022-07-14T22:58:34,562 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - model_name: all_det, batchSize: 1
+2022-07-14T22:58:34,563 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Backend worker process died.
+2022-07-14T22:58:34,563 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Traceback (most recent call last):
+2022-07-14T22:58:34,564 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_loader.py", line 100, in load
+2022-07-14T22:58:34,564 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     module, function_name = self._load_handler_file(handler)
+2022-07-14T22:58:34,564 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_loader.py", line 162, in _load_handler_file
+2022-07-14T22:58:34,565 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     module = importlib.import_module(module_name)
+2022-07-14T22:58:34,565 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/importlib/__init__.py", line 127, in import_module
+2022-07-14T22:58:34,565 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     return _bootstrap._gcd_import(name[level:], package, level)
+2022-07-14T22:58:34,565 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+2022-07-14T22:58:34,565 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+2022-07-14T22:58:34,566 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 984, in _find_and_load_unlocked
+2022-07-14T22:58:34,566 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - ModuleNotFoundError: No module named 'coordinator'
+2022-07-14T22:58:34,566 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - 
+2022-07-14T22:58:34,566 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - During handling of the above exception, another exception occurred:
+2022-07-14T22:58:34,575 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - 
+2022-07-14T22:58:34,576 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Traceback (most recent call last):
+2022-07-14T22:58:34,576 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_service_worker.py", line 210, in <module>
+2022-07-14T22:58:34,576 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     worker.run_server()
+2022-07-14T22:58:34,577 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_service_worker.py", line 181, in run_server
+2022-07-14T22:58:34,577 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     self.handle_connection(cl_socket)
+2022-07-14T22:58:34,578 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_service_worker.py", line 139, in handle_connection
+2022-07-14T22:58:34,579 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     service, result, code = self.load_model(msg)
+2022-07-14T22:58:34,579 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_service_worker.py", line 104, in load_model
+2022-07-14T22:58:34,579 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     service = model_loader.load(
+2022-07-14T22:58:34,580 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_loader.py", line 102, in load
+2022-07-14T22:58:34,581 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     module = self._load_default_handler(handler)
+2022-07-14T22:58:34,581 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_loader.py", line 167, in _load_default_handler
+2022-07-14T22:58:34,581 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     module = importlib.import_module(module_name, "ts.torch_handler")
+2022-07-14T22:58:34,582 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/importlib/__init__.py", line 127, in import_module
+2022-07-14T22:58:34,582 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     return _bootstrap._gcd_import(name[level:], package, level)
+2022-07-14T22:58:34,582 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+2022-07-14T22:58:34,583 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+2022-07-14T22:58:34,588 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 972, in _find_and_load_unlocked
+2022-07-14T22:58:34,591 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+2022-07-14T22:58:34,592 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+2022-07-14T22:58:34,592 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+2022-07-14T22:58:34,592 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 984, in _find_and_load_unlocked
+2022-07-14T22:58:34,592 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - ModuleNotFoundError: No module named 'ts.torch_handler.coordinator'
+2022-07-14T22:58:35,994 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2022-07-14T22:58:35,995 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - [PID]22701
+2022-07-14T22:58:35,996 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Torch worker started.
+2022-07-14T22:58:35,996 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Python runtime: 3.9.7
+2022-07-14T22:58:35,998 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2022-07-14T22:58:36,011 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - model_name: all_det, batchSize: 1
+2022-07-14T22:58:36,012 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Backend worker process died.
+2022-07-14T22:58:36,013 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Traceback (most recent call last):
+2022-07-14T22:58:36,013 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_loader.py", line 100, in load
+2022-07-14T22:58:36,013 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     module, function_name = self._load_handler_file(handler)
+2022-07-14T22:58:36,013 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_loader.py", line 162, in _load_handler_file
+2022-07-14T22:58:36,013 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     module = importlib.import_module(module_name)
+2022-07-14T22:58:36,014 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/importlib/__init__.py", line 127, in import_module
+2022-07-14T22:58:36,014 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     return _bootstrap._gcd_import(name[level:], package, level)
+2022-07-14T22:58:36,014 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+2022-07-14T22:58:36,015 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+2022-07-14T22:58:36,015 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 984, in _find_and_load_unlocked
+2022-07-14T23:05:22,665 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2022-07-14T23:05:22,666 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - [PID]23721
+2022-07-14T23:05:22,666 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Torch worker started.
+2022-07-14T23:05:22,666 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Python runtime: 3.9.7
+2022-07-14T23:05:22,679 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2022-07-14T23:05:22,705 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - model_name: all_det, batchSize: 1
+2022-07-14T23:05:22,732 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Backend worker process died.
+2022-07-14T23:05:22,732 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Traceback (most recent call last):
+2022-07-14T23:05:22,733 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_loader.py", line 100, in load
+2022-07-14T23:05:22,733 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     module, function_name = self._load_handler_file(handler)
+2022-07-14T23:05:22,734 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_loader.py", line 162, in _load_handler_file
+2022-07-14T23:05:22,734 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     module = importlib.import_module(module_name)
+2022-07-14T23:05:22,734 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/importlib/__init__.py", line 127, in import_module
+2022-07-14T23:05:22,735 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     return _bootstrap._gcd_import(name[level:], package, level)
+2022-07-14T23:05:22,735 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+2022-07-14T23:05:22,735 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+2022-07-14T23:05:22,736 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+2022-07-14T23:05:22,736 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+2022-07-14T23:05:22,736 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+2022-07-14T23:05:22,745 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+2022-07-14T23:05:22,745 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/tmp/models/bfca37c3a4cc4bc68b457887a5c83935/coordinator.py", line 7, in <module>
+2022-07-14T23:05:22,746 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     from cv2 import cv
+2022-07-14T23:05:22,746 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - ImportError: cannot import name 'cv' from 'cv2' (/home/jafar/anaconda3/lib/python3.9/site-packages/cv2/__init__.py)
+2022-07-14T23:05:22,746 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - 
+2022-07-14T23:05:22,746 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - During handling of the above exception, another exception occurred:
+2022-07-14T23:05:22,747 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - 
+2022-07-14T23:05:22,747 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Traceback (most recent call last):
+2022-07-14T23:05:22,747 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_service_worker.py", line 210, in <module>
+2022-07-14T23:05:22,748 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     worker.run_server()
+2022-07-14T23:05:22,748 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_service_worker.py", line 181, in run_server
+2022-07-14T23:05:22,748 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     self.handle_connection(cl_socket)
+2022-07-14T23:05:22,748 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_service_worker.py", line 139, in handle_connection
+2022-07-14T23:05:22,749 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     service, result, code = self.load_model(msg)
+2022-07-14T23:05:22,749 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_service_worker.py", line 104, in load_model
+2022-07-14T23:05:22,749 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     service = model_loader.load(
+2022-07-14T23:05:22,750 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_loader.py", line 102, in load
+2022-07-14T23:05:22,750 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     module = self._load_default_handler(handler)
+2022-07-14T23:05:22,750 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_loader.py", line 167, in _load_default_handler
+2022-07-14T23:05:22,751 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     module = importlib.import_module(module_name, "ts.torch_handler")
+2022-07-14T23:05:22,751 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/importlib/__init__.py", line 127, in import_module
+2022-07-14T23:05:22,751 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     return _bootstrap._gcd_import(name[level:], package, level)
+2022-07-14T23:05:22,751 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+2022-07-14T23:05:22,752 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+2022-07-14T23:05:22,752 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 972, in _find_and_load_unlocked
+2022-07-14T23:05:22,752 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+2022-07-14T23:05:22,752 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+2022-07-14T23:05:22,752 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+2022-07-14T23:05:22,753 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 984, in _find_and_load_unlocked
+2022-07-14T23:05:22,753 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - ModuleNotFoundError: No module named 'ts.torch_handler.coordinator'
+2022-07-14T23:05:24,184 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2022-07-14T23:05:24,185 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - [PID]23782
+2022-07-14T23:05:24,186 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Torch worker started.
+2022-07-14T23:05:24,186 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Python runtime: 3.9.7
+2022-07-14T23:05:24,188 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2022-07-14T23:05:24,197 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - model_name: all_det, batchSize: 1
+2022-07-14T23:05:24,225 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Backend worker process died.
+2022-07-14T23:05:24,225 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Traceback (most recent call last):
+2022-07-14T23:05:24,225 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_loader.py", line 100, in load
+2022-07-14T23:05:24,225 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     module, function_name = self._load_handler_file(handler)
+2022-07-14T23:05:24,226 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_loader.py", line 162, in _load_handler_file
+2022-07-14T23:05:24,226 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     module = importlib.import_module(module_name)
+2022-07-14T23:05:24,226 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/importlib/__init__.py", line 127, in import_module
+2022-07-14T23:05:24,226 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     return _bootstrap._gcd_import(name[level:], package, level)
+2022-07-14T23:05:24,227 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+2022-07-14T23:05:24,227 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+2022-07-14T23:05:24,227 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+2022-07-14T23:05:24,227 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+2022-07-14T23:05:24,228 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+2022-07-14T23:05:24,228 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+2022-07-14T23:05:24,228 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/tmp/models/bfca37c3a4cc4bc68b457887a5c83935/coordinator.py", line 7, in <module>
+2022-07-14T23:06:23,032 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2022-07-14T23:06:23,034 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - [PID]23983
+2022-07-14T23:06:23,034 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Torch worker started.
+2022-07-14T23:06:23,034 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Python runtime: 3.9.7
+2022-07-14T23:06:23,043 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2022-07-14T23:06:23,066 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - model_name: all_det, batchSize: 1
+2022-07-14T23:06:23,335 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - STUFF IN THE DIRECTORY
+2022-07-14T23:06:23,335 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Backend worker process died.
+2022-07-14T23:06:23,336 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Traceback (most recent call last):
+2022-07-14T23:06:23,336 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_service_worker.py", line 210, in <module>
+2022-07-14T23:06:23,337 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     worker.run_server()
+2022-07-14T23:06:23,337 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_service_worker.py", line 181, in run_server
+2022-07-14T23:06:23,337 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     self.handle_connection(cl_socket)
+2022-07-14T23:06:23,347 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_service_worker.py", line 139, in handle_connection
+2022-07-14T23:06:23,348 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     service, result, code = self.load_model(msg)
+2022-07-14T23:06:23,348 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_service_worker.py", line 104, in load_model
+2022-07-14T23:06:23,348 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     service = model_loader.load(
+2022-07-14T23:06:23,348 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_loader.py", line 100, in load
+2022-07-14T23:06:23,349 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     module, function_name = self._load_handler_file(handler)
+2022-07-14T23:06:23,349 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/site-packages/ts/model_loader.py", line 162, in _load_handler_file
+2022-07-14T23:06:23,350 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     module = importlib.import_module(module_name)
+2022-07-14T23:06:23,353 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/home/jafar/anaconda3/lib/python3.9/importlib/__init__.py", line 127, in import_module
+2022-07-14T23:06:23,353 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     return _bootstrap._gcd_import(name[level:], package, level)
+2022-07-14T23:06:23,353 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+2022-07-14T23:06:23,354 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+2022-07-14T23:06:23,354 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+2022-07-14T23:06:23,354 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+2022-07-14T23:06:23,354 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+2022-07-14T23:06:23,354 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+2022-07-14T23:06:23,354 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -   File "/tmp/models/8fce3134b7634c10b6421322fb615971/coordinator.py", line 19, in <module>
+2022-07-14T23:06:23,354 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG -     print(os.listdir('models'))
+2022-07-14T23:06:23,355 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - FileNotFoundError: [Errno 2] No such file or directory: 'models'
+2022-07-14T23:07:01,069 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2022-07-14T23:07:01,069 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - [PID]24200
+2022-07-14T23:07:01,070 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Torch worker started.
+2022-07-14T23:07:01,070 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Python runtime: 3.9.7
+2022-07-14T23:07:01,083 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2022-07-14T23:07:01,108 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - model_name: all_det, batchSize: 1
+2022-07-14T23:07:46,956 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2022-07-14T23:07:46,957 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - [PID]24378
+2022-07-14T23:07:46,957 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Torch worker started.
+2022-07-14T23:07:46,957 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Python runtime: 3.9.7
+2022-07-14T23:07:46,970 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2022-07-14T23:07:46,994 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - model_name: all_det, batchSize: 1
+2022-07-14T23:08:00,483 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2022-07-14T23:08:00,484 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - [PID]24528
+2022-07-14T23:08:00,484 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Torch worker started.
+2022-07-14T23:08:00,485 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Python runtime: 3.9.7
+2022-07-14T23:08:00,498 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2022-07-14T23:08:00,523 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - model_name: all_det, batchSize: 1
+2022-07-14T23:08:42,248 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2022-07-14T23:08:42,250 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - [PID]24760
+2022-07-14T23:08:42,250 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Torch worker started.
+2022-07-14T23:08:42,250 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Python runtime: 3.9.7
+2022-07-14T23:08:42,263 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2022-07-14T23:08:42,283 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - model_name: all_det, batchSize: 1
+2022-07-14T23:09:25,128 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2022-07-14T23:09:25,129 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - [PID]25111
+2022-07-14T23:09:25,130 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Torch worker started.
+2022-07-14T23:09:25,130 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Python runtime: 3.9.7
+2022-07-14T23:09:25,143 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2022-07-14T23:09:25,167 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - model_name: all_det, batchSize: 1
+2022-07-14T23:37:45,279 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2022-07-14T23:37:45,281 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - [PID]46477
+2022-07-14T23:37:45,281 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Torch worker started.
+2022-07-14T23:37:45,281 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Python runtime: 3.9.7
+2022-07-14T23:37:45,294 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2022-07-14T23:37:45,315 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - model_name: all_det, batchSize: 1
+2022-07-14T23:39:31,004 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2022-07-14T23:39:31,005 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - [PID]47077
+2022-07-14T23:39:31,006 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Torch worker started.
+2022-07-14T23:39:31,006 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Python runtime: 3.9.7
+2022-07-14T23:39:31,018 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2022-07-14T23:39:31,040 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - model_name: all_det, batchSize: 1
+2022-07-14T23:46:04,778 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2022-07-14T23:46:04,780 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - [PID]50358
+2022-07-14T23:46:04,780 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Torch worker started.
+2022-07-14T23:46:04,780 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Python runtime: 3.9.7
+2022-07-14T23:46:04,793 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2022-07-14T23:46:04,817 [INFO ] W-9000-all_det_1.0-stdout MODEL_LOG - model_name: all_det, batchSize: 1
