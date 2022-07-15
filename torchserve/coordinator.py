@@ -4,7 +4,7 @@ from PIL import Image
 
 import numpy as np
 import cv2
-
+import mmcv
 
 from shutil import move, rmtree
 from methods.face_det_init_cnn import create_mtcnn, create_resnet
@@ -36,6 +36,7 @@ class MMdetHandler(BaseHandler):
         self.device = torch.device(self.map_location + ':' +
                                    str(properties.get('gpu_id')) if torch.cuda.
                                    is_available() else self.map_location)
+        assert self.device == "cuda", "GPU ISNT RECOGNIZED"
         self.mtcnn = create_mtcnn()
 
     def preprocess(self, data):
@@ -48,12 +49,11 @@ class MMdetHandler(BaseHandler):
         images = []
         for row in data:
             image = row.get('data') or row.get('body')
+            
             if isinstance(image, str):
                 image = base64.b64decode(image)
-            nparr = np.fromstring(image, np.uint8)
-            img_np = cv2.imdecode(nparr, cv2.CV_LOAD_IMAGE_COLOR) # cv2.IMREAD_COLOR in OpenCV 3.1
-
-            # img_np = img_np[:, :, ::-1]
+            image = mmcv.imfrombytes(image)
+            img_np = image[:, :, ::-1]
             images.append(img_np)
         return images
 
@@ -67,11 +67,15 @@ class MMdetHandler(BaseHandler):
         results = []
         for frame in data:
             # REPLACE WITH PREDICT BATCH IF POSSIBLE #TODO
+            
             boxes, _ = self.mtcnn.detect(frame)
+            results.append([])
+            if boxes is None:
+                continue
             for box in boxes:
                 box = [int(i) for i in box]
                 x1, y1, x2, y2 = box
-                results.append(((x1, y1), (x2, y2), (255,0,0), 3))
+                results[-1].append((x1, y1, x2, y2))
         return results
 
     def handle(self, data, context):

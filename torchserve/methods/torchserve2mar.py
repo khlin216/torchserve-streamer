@@ -24,7 +24,7 @@ def mmdet2torchserve(
     """Converts MMDetection model (config + checkpoint) to TorchServe `.mar`.
     """
     mmcv.mkdir_or_exist(output_folder)
-    dummy_file = "methods/README.md"
+    dummy_file = "methods/constants.py"
     if os.path.isfile("./serve_alldet/all_det.mar"):
         os.remove("./serve_alldet/all_det.mar")
     with TemporaryDirectory() as tmpdir:
