@@ -39,3 +39,11 @@ r = requests.put(
         ).content
 
 ```
+
+after running torchserve you can actually run a stream from twitch using 
+
+```
+python streamer.py  https://www.twitch.tv/matteohs
+```
+
+or any other url. Make sure that you have a GPU otherwise the facedetection model will become super slow and the torchserve workers will return timeouts that I havent taken into account in the streaming code.
