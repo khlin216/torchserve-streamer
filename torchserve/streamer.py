@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import streamlink
 import time
 from facenet_pytorch import MTCNN
@@ -9,7 +11,6 @@ import time
 device = 'cuda'
 
 import sys
-#!/usr/bin/env python3
 import logging
 import sys
 import streamlink
@@ -33,6 +34,7 @@ def stream_to_url(url, quality='best'):
     else:
         raise ValueError("No streams were available")
 
+
 def add_rect2frame(frame, boxes):
      
     for box in boxes:
@@ -48,10 +50,12 @@ def detect_faces(frame, mtcnn):
     add_rect2frame(frame, boxes)
     return frame
 
+
 def numpy_to_binary(arr):
     is_success, buffer = cv2.imencode(".png", arr)
     io_buf = io.BytesIO(buffer)
     return io_buf.read()
+
 
 def detect_faces_online(frame, add2frame=False, timeout=5):
     X_sz, Y_sz = frame.shape[:2]
@@ -69,21 +73,20 @@ def detect_faces_online(frame, add2frame=False, timeout=5):
     if add2frame:
         add_rect2frame(frame, boxes)
     return boxes
-    
+
+
 def write_on_line(text):
     sys.stdout.write(f'\r{text}')
     sys.stdout.flush()
 
 
 def main(url, quality='best', fps=60.0):
-    
     stream_url = stream_to_url(url)
     log.info("Loading stream {0}".format(stream_url))
     cap = cv2.VideoCapture(stream_url)
 
     frame_time = int((1.0 / fps) * 1000.0)
     CONNECTIONS = 200
-     
     multithreader = concurrent.futures.ThreadPoolExecutor(max_workers=CONNECTIONS)
     tic = None 
     cnt = 0
@@ -144,6 +147,7 @@ def main(url, quality='best', fps=60.0):
     cv2.destroyAllWindows()
     cap.release()
 
+
 def stream_without_torch(url, quality='best', fps=300.0):
     stream_url = stream_to_url(url)
     log.info("Loading stream {0}".format(stream_url))
@@ -174,6 +178,7 @@ def stream_without_torch(url, quality='best', fps=300.0):
 
     cv2.destroyAllWindows()
     cap.release()
+
 
 if __name__ == "__main__":
     import argparse
