@@ -14,13 +14,10 @@ import base64
 from methods.constants import *
 
 
-
 print("STUFF IN THE DIRECTORY")
 
 
-
 class MMdetHandler(BaseHandler):
-
     def initialize(self, context):
         """
         Args:
@@ -36,7 +33,7 @@ class MMdetHandler(BaseHandler):
         self.device = torch.device(self.map_location + ':' +
                                    str(properties.get('gpu_id')) if torch.cuda.
                                    is_available() else self.map_location)
-        assert self.device == "cuda", "GPU ISNT RECOGNIZED"
+        # assert self.device == "cuda", "GPU ISNT RECOGNIZED"
         self.mtcnn = create_mtcnn()
 
     def preprocess(self, data):
@@ -49,7 +46,6 @@ class MMdetHandler(BaseHandler):
         images = []
         for row in data:
             image = row.get('data') or row.get('body')
-            
             if isinstance(image, str):
                 image = base64.b64decode(image)
             image = mmcv.imfrombytes(image)
@@ -64,18 +60,16 @@ class MMdetHandler(BaseHandler):
         Returns:
             textract-like response representing the table/cell/text structure in the image
         """
+
+        boxes_list, confidence_list = self.mtcnn.detect(data)
         results = []
-        for frame in data:
-            # REPLACE WITH PREDICT BATCH IF POSSIBLE #TODO
-            
-            boxes, _ = self.mtcnn.detect(frame)
-            results.append([])
+        for boxes in boxes_list:
+            result = []
+            results.append(result)
             if boxes is None:
                 continue
             for box in boxes:
-                box = [int(i) for i in box]
-                x1, y1, x2, y2 = box
-                results[-1].append((x1, y1, x2, y2))
+                result.append([int(round(i)) for i in box])
         return results
 
     def handle(self, data, context):
