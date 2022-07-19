@@ -47,3 +47,18 @@ python streamer.py  https://www.twitch.tv/matteohs
 ```
 
 or any other url. Make sure that you have a GPU otherwise the facedetection model will become super slow and the torchserve workers will return timeouts that I havent taken into account in the streaming code.
+
+
+# Terraform
+
+
+```
+terraform init
+terraform plan
+terraform apply
+# terraform destroy
+```
+
+```
+aws eks update-kubeconfig --name hello-terra-bkr --region eu-west-1
+```
