@@ -7,6 +7,11 @@ just use
 python methods/torchserve2mar.py
 ```
 
+then start torchserve:
+```
+torchserve --start --foreground --ts-config ./configs.properties
+```
+
 Checkout dockerfile to see how to install the required libraries 
 
 Or just use the docker version
