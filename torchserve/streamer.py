@@ -94,7 +94,7 @@ def write_on_line(text):
     sys.stdout.flush()
 
 
-def main(url, x0=None, y0=None, x1=None, y1=None, quality='best', fps=60.0):
+def main(url, fpath_asset=None, x0=None, y0=None, x1=None, y1=None, quality='best', fps=60.0):
     stream_url = stream_to_url(url)
     log.info("Loading stream {0}".format(stream_url))
     cap = cv2.VideoCapture(stream_url)
@@ -111,7 +111,13 @@ def main(url, x0=None, y0=None, x1=None, y1=None, quality='best', fps=60.0):
     x0, x1 = int(round(x0 * w)), int(round(x1 * w))
     y0, y1 = int(round(y0 * h)), int(round(y1 * h))
     print(y0, y1, x0, x1)
-    asset = cv2.imread("C:/Users/andre/Downloads/doritos_PNG60.png", cv2.IMREAD_UNCHANGED)
+    if fpath_asset is None:
+        fpath_asset = "img.png"
+        img_data = requests.get("http://assets.stickpng.com/images/58e8ff52eb97430e819064cf.png").content
+        with open(fpath_asset, 'wb') as handler:
+            handler.write(img_data)
+
+    asset = cv2.imread(fpath_asset, cv2.IMREAD_UNCHANGED)
 
     frame_time = int((1.0 / fps) * 1000.0)
     CONNECTIONS = 200
@@ -121,7 +127,7 @@ def main(url, x0=None, y0=None, x1=None, y1=None, quality='best', fps=60.0):
     futures = []
     frames_queue = []
     beginning = True
-    boxes = InertialBoxes(b=0.95)
+    boxes = InertialBoxes(b=0.90)
     while True:
         try:
             tic_ = time.time()
@@ -258,6 +264,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Face detection on streams via Streamlink")
     parser.add_argument("url", help="Stream to play")
+    parser.add_argument("--path_asset", default=None)
     parser.add_argument("--x0", default=None, type=float)
     parser.add_argument("--y0", default=None, type=float)
     parser.add_argument("--x1", default=None, type=float)
@@ -266,5 +273,5 @@ if __name__ == "__main__":
     opts = parser.parse_args()
     
     TWITCH_URL = opts.url if opts.url else "https://www.twitch.tv/valhalla_cup"
-    main(TWITCH_URL, opts.x0, opts.y0, opts.x1, opts.y1)
+    main(TWITCH_URL, opts.path_asset, opts.x0, opts.y0, opts.x1, opts.y1)
     # stream_without_torch(TWITCH_URL)
