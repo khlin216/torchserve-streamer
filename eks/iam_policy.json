@@ -1,0 +1,36 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:*",
+                "ecr:CreateRepository",
+                "iam:CreateRole",
+                "iam:CreatePolicy",
+                "iam:GetRole",
+                "iam:GetPolicy",
+                "iam:GetPolicyVersion",
+                "iam:ListInstanceProfilesForRole",
+                "iam:ListPolicyVersions",
+                "iam:ListInstanceProfilesForRole",
+                "iam:DeleteRole",
+                "iam:DeletePolicy",
+                "iam:AttachRolePolicy",
+                "iam:ListAttachedRolePolicies",
+                "iam:ListAttachedRolePolicies",
+                "iam:DetachRolePolicy",
+                "sts:AssumeRole",
+                "iam:ListRolePolicies",
+                "ecr:*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "eksadministrator",
+            "Effect": "Allow",
+            "Action": "eks:*",
+            "Resource": "*"
+        }
+    ]
+}
