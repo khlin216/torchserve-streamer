@@ -113,7 +113,7 @@ resource "aws_eks_node_group" "nodegroup" {
   node_group_name = "${var.tag}-group1"
   node_role_arn   = aws_iam_role.nodegroup.arn
   subnet_ids      = data.aws_subnet_ids.default.ids
-  instance_types = ["g4dn.xlarge"]
+  # instance_types = ["g4dn.xlarge"]
   scaling_config {
     desired_size = 1
     max_size     = 1
