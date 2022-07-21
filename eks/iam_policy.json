@@ -22,7 +22,8 @@
                 "iam:DetachRolePolicy",
                 "sts:AssumeRole",
                 "iam:ListRolePolicies",
-                "ecr:*"
+                "ecr:*",
+                "iam:PassRole"
             ],
             "Resource": "*"
         },
