@@ -1,6 +1,4 @@
-
 FROM python:3
-
 
 RUN apt-get update
 # RUN apt-get install ffmpeg libsm6 libxext6  -y
@@ -13,7 +11,6 @@ ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 
 COPY ./requirements.txt ./requirements.txt
 RUN pip install -r requirements.txt
-
 
 COPY ./configs.properties ./configs.properties
 COPY ./serve_alldet ./serve_alldet

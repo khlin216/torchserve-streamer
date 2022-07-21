@@ -5,7 +5,7 @@ from methods.constants import IMG_SHAPE, MAP_LOCATION
 
 def create_mtcnn():
     mtcnn = MTCNN(
-        image_size=IMG_SHAPE, margin=0, min_face_size=20,
+        image_size=IMG_SHAPE, margin=0, min_face_size=10,
         thresholds=[0.6, 0.7, 0.7], factor=0.709, post_process=True,
         device=MAP_LOCATION
     )
