@@ -66,4 +66,7 @@ terraform apply
 
 ```
 aws eks update-kubeconfig --name stream-torch --region eu-west-1
+cd ./eks/k8s
+kubectl apply -f .
+kubectl get svc -o wide
 ```
