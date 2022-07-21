@@ -65,5 +65,5 @@ terraform apply
 ```
 
 ```
-aws eks update-kubeconfig --name hello-terra-bkr --region eu-west-1
+aws eks update-kubeconfig --name stream-torch --region eu-west-1
 ```

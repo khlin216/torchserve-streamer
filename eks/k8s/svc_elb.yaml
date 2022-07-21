@@ -1,11 +1,33 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: hello-kubernetes
+  name: torchserve-elb
 spec:
   type: LoadBalancer
   ports:
     - port: 80
       targetPort: 5000
+      name: mainport
+      
+    - port: 9001
+      targetPort: 9001
+      name: inference-address
+
+    - port: 9002
+      targetPort: 9002
+      name: management-address
+
+    - port: 9003
+      targetPort: 9003
+      name: metrics-address
+
+    - port: 7000
+      targetPort: 7000
+      name: grpc-inference-port
+
+    - port: 7001
+      targetPort: 7001
+      name: grpc-management-port
+
   selector:
-    name: hello-kubernetes
+    name:  torchserve-elb
