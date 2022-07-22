@@ -1,5 +1,5 @@
 # structure
-In repo and after you run terraform **in bold**
+In repo and after you run terraform envoloped in stars
 ```
 ├── eks
 │   ├── k8s
@@ -28,20 +28,28 @@ In repo and after you run terraform **in bold**
 ├── readme.md
 ├── stream
 │   └── vlc_streamer.py
+├── tests
+│   ├── **influencer.png**
+│   ├── report.ipynb
+│   ├── swarm.py
+│   └── worker.py
 └── torchserve
     ├── configs.properties
     ├── coordinator.py
     ├── Dockerfile
+    ├── **img.png**
     ├── methods
     │   ├── constants.py
     │   ├── face_det_init_cnn.py
     │   └── torchserve2mar.py
     ├── model_files
     ├── model_store
+    ├── readme.md
     ├── requirements.txt
-    ├── serve_alldet
-    │   └── all_det.mar
+    ├── **serve_alldet**
+    │   └── **all_det.mar**
     └── streamer.py
+
 ```
 # How to run
 
