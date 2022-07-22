@@ -16,6 +16,38 @@ resource "aws_iam_role" "eks" {
   ]
 }
 POLICY
+  # worker_groups = [
+  #   {
+  #     image_id = "ami-006c51133217c76b8"
+  #   }
+  # ]
+}
+# data "aws_eks_cluster_auth" "cluster-auth" {
+#   depends_on = [aws_eks_cluster.eks]
+#   name       = aws_eks_cluster.eks.name
+# }
+
+# provider "helm" {
+#   alias = "stream-torch"
+#   kubernetes {
+#     host                   = aws_eks_cluster.eks.endpoint
+#     cluster_ca_certificate = base64decode(aws_eks_cluster.my_cluster.certificate_authority.0.data)
+#     token                  = data.aws_eks_cluster_auth.cluster-auth.token
+#     load_config_file       = false
+#   }
+  
+# }
+
+
+
+
+resource "helm_release" "k8s-device-plugin" {
+  name  = "k8s-device-plugin"
+  repository = "https://nvidia.github.io/k8s-device-plugin"
+  chart = "nvidia-device-plugin"
+  version = "0.6.0"
+  namespace = "kube-system"
+  wait = true
 }
 
 resource "aws_iam_policy" "ecr_policy" {
@@ -66,6 +98,7 @@ resource "aws_eks_cluster" "eks" {
     aws_iam_role_policy_attachment.eks-AmazonEKSClusterPolicy,
     aws_iam_role_policy_attachment.eks-AmazonEKSServicePolicy,
     aws_iam_role_policy_attachment.ecr-eks-attach,
+    aws_iam_role_policy_attachment.ssm_attach,
   ]
 }
 
@@ -93,6 +126,24 @@ resource "aws_iam_role" "nodegroup" {
   })
 }
 
+resource "aws_iam_role" "ssm_role" {
+  name = "ssm_role"
+
+  assume_role_policy =jsonencode({
+     Statement = [{
+      "Effect": "Allow",
+      "Principal": {"Service": "ssm.amazonaws.com"},
+      "Action": "sts:AssumeRole"
+     }]
+      Version = "2012-10-17"
+     })
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_attach" {
+  role       = aws_iam_role.ssm_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 resource "aws_iam_role_policy_attachment" "nodegroup-AmazonEKSWorkerNodePolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
   role       = aws_iam_role.nodegroup.name
@@ -113,11 +164,13 @@ resource "aws_eks_node_group" "nodegroup" {
   node_group_name = "${var.tag}-group1"
   node_role_arn   = aws_iam_role.nodegroup.arn
   subnet_ids      = data.aws_subnet_ids.default.ids
-  # instance_types = ["g4dn.xlarge"]
+  instance_types = ["g4dn.xlarge"]
+  ami_type = "AL2_x86_64_GPU"
+  capacity_type = "ON_DEMAND"
   scaling_config {
-    desired_size = 2
+    desired_size = 1
     max_size     = 4
-    min_size     = 1
+    min_size     = 0
   }
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
@@ -126,5 +179,6 @@ resource "aws_eks_node_group" "nodegroup" {
     aws_iam_role_policy_attachment.nodegroup-AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.nodegroup-AmazonEKS_CNI_Policy,
     aws_iam_role_policy_attachment.nodegroup-AmazonEC2ContainerRegistryReadOnly,
+    aws_iam_role_policy_attachment.ssm_attach,
   ]
 }

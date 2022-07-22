@@ -58,6 +58,7 @@ or any other url. Make sure that you have a GPU otherwise the facedetection mode
 
 
 ```
+export KUBE_CONFIG_PATH=~/.kube/config
 terraform init
 terraform plan
 terraform apply
@@ -65,8 +66,28 @@ terraform apply
 ```
 
 ```
-aws eks update-kubeconfig --name stream-torch --region eu-west-1
+aws eks update-kubeconfig --name stream-torch --region us-east-2
 cd ./eks/k8s
 kubectl apply -f .
 kubectl get svc -o wide
+```
+
+# NOTES
+
+to check if there is a gpu in the cluster
+
+```
+kubectl describe nodes  |  tr -d '\000' | sed -n -e '/^Name/,/Roles/p' -e '/^Capacity/,/Allocatable/p' -e '/^Allocated resources/,/Events/p'  | grep -e Name  -e  nvidia.com  | perl -pe 's/\n//'  |  perl -pe 's/Name:/\n/g' | sed 's/nvidia.com\/gpu:\?//g'  | sed '1s/^/Node Available(GPUs)  Used(GPUs)/' | sed 's/$/ 0 0 0/'  | awk '{print $1, $2, $3}'  | column -t
+
+```
+
+
+to get daemon sets
+
+```
+kubectl get ds --all-namespaces | grep -i nvidia
+```
+
+```
+kubectl get pods -n kube-system | grep -i nvidia
 ```

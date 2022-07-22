@@ -1,5 +1,5 @@
 provider "aws" {
-  region     = "eu-west-1"
+  region     = "us-east-2"
 }
 
 # Will we store our state in S3, and lock with dynamodb
