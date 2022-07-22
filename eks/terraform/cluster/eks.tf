@@ -16,38 +16,7 @@ resource "aws_iam_role" "eks" {
   ]
 }
 POLICY
-  # worker_groups = [
-  #   {
-  #     image_id = "ami-006c51133217c76b8"
-  #   }
-  # ]
-}
-# data "aws_eks_cluster_auth" "cluster-auth" {
-#   depends_on = [aws_eks_cluster.eks]
-#   name       = aws_eks_cluster.eks.name
-# }
 
-# provider "helm" {
-#   alias = "stream-torch"
-#   kubernetes {
-#     host                   = aws_eks_cluster.eks.endpoint
-#     cluster_ca_certificate = base64decode(aws_eks_cluster.my_cluster.certificate_authority.0.data)
-#     token                  = data.aws_eks_cluster_auth.cluster-auth.token
-#     load_config_file       = false
-#   }
-  
-# }
-
-
-
-
-resource "helm_release" "k8s-device-plugin" {
-  name  = "k8s-device-plugin"
-  repository = "https://nvidia.github.io/k8s-device-plugin"
-  chart = "nvidia-device-plugin"
-  version = "0.6.0"
-  namespace = "kube-system"
-  wait = true
 }
 
 resource "aws_iam_policy" "ecr_policy" {
