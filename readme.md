@@ -1,3 +1,48 @@
+# structure
+In repo and after you run terraform **in bold**
+```
+├── eks
+│   ├── k8s
+│   │   ├── deployment.yaml
+│   │   ├── readme.md
+│   │   ├── ssm.yaml
+│   │   └── svc_elb.yaml
+│   └── terraform
+│       ├── cluster
+│       │   ├── ecr.tf
+│       │   ├── eks.tf
+│       │   ├── main.tf
+│       │   ├── **terraform.tfstate**
+│       │   ├── **terraform.tfstate.backup**
+│       │   └── vars.tf
+│       ├── helm
+│       │   ├── helm.tf
+│       │   ├── **terraform.tfstate**
+│       │   ├── **terraform.tfstate.backup**
+│       │   └── vars.tf
+│       ├── iam_policy.json
+│       ├── readme.md
+│       ├── terraform-destroy.sh
+│       └── terraform-run.sh
+├── model_store
+├── readme.md
+├── stream
+│   └── vlc_streamer.py
+└── torchserve
+    ├── configs.properties
+    ├── coordinator.py
+    ├── Dockerfile
+    ├── methods
+    │   ├── constants.py
+    │   ├── face_det_init_cnn.py
+    │   └── torchserve2mar.py
+    ├── model_files
+    ├── model_store
+    ├── requirements.txt
+    ├── serve_alldet
+    │   └── all_det.mar
+    └── streamer.py
+```
 # How to run
 
 Firstly we need to convert all of the source code into .mar file
