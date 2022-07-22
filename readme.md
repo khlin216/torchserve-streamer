@@ -37,11 +37,8 @@ sudo docker run --network host --gpus all streamo
 
 ```
 binary_image = open("test.png", "rb").read()
-r = requests.put(
-            "http://127.0.0.1:9001/predictions/all_det", 
-            binary_image, 
-            timeout=timeout
-        ).content
+url = "http://127.0.0.1:9001/predictions/all_det"
+r = requests.put(url, binary_image, timeout=timeout).content
 
 ```
 

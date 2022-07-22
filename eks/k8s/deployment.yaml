@@ -14,32 +14,110 @@ spec:
     spec:
       containers:
         - name: torchserve-app
-          image: 466956024587.dkr.ecr.eu-west-1.amazonaws.com/torchserve:latest
-          ports:
-            - containerPort: 5000
+          image: 466956024587.dkr.ecr.us-east-2.amazonaws.com/torchserve-repo:latest
 
+          ports:
+       
+          - containerPort: 9001
+            name: inference
+            protocol: TCP
+
+          - containerPort: 9002
+            name: management
+            protocol: TCP
+
+          - containerPort: 9003
+            name: metrics
+            protocol: TCP
+
+          - containerPort: 7000
+            name: grpc-inference
+            protocol: TCP
+
+          - containerPort: 7001
+            name: grpc-management
+            protocol: TCP
+
+          - containerPort: 8501
+            name: test
+            protocol: TCP
+
+          env:
+          - name: DP_DISABLE_HEALTHCHECKS
+            value: "xids"
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node.kubernetes.io/instance-type
+                operator: In
+                values:
+                  - g4dn.xlarge
 ---
 
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nvidia-smi
-spec:
-  restartPolicy: OnFailure
-  containers:
-  - name: nvidia-smi
-    image: nvidia/cuda:latest
-    args:
-    - "nvidia-smi"
-    resources:
-      limits:
-        nvidia.com/gpu: 1
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: node.kubernetes.io/instance-type
-            operator: In
-            values:
-              - g4dn.xlarge
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   name: nvidia-smi
+# spec:
+#   restartPolicy: OnFailure
+#   containers:
+#   - name: nvidia-smi
+#     image: nvidia/cuda:10.0-cudnn7-devel-ubuntu16.04
+#     args:
+#     - "nvidia-smi"
+#     resources:
+#       limits:
+#         nvidia.com/gpu: 1
+#   affinity:
+#     nodeAffinity:
+#       requiredDuringSchedulingIgnoredDuringExecution:
+#         nodeSelectorTerms:
+#         - matchExpressions:
+#           - key: node.kubernetes.io/instance-type
+#             operator: In
+#             values:
+#               - g4dn.xlarge
+
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: resnet-deployment
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: resnet-server
+#   template:
+#     metadata:
+#       labels:
+#         app: resnet-server
+#     spec:
+#       # hostIPC is required for MPS communication
+#       hostIPC: true
+#       containers:
+#       - name: resnet-container
+#         image: seedjeffwan/tensorflow-serving-gpu:resnet
+#         args:
+#         # Make sure you set limit based on the vGPU account to avoid tf-serving process occupy all the gpu memory
+#         - --per_process_gpu_memory_fraction=0.2
+#         env:
+#         - name: MODEL_NAME
+#           value: resnet
+#         ports:
+#         - containerPort: 8501
+#         # Use virtual gpu resource here
+#       affinity:
+#         nodeAffinity:
+#           requiredDuringSchedulingIgnoredDuringExecution:
+#             nodeSelectorTerms:
+#             - matchExpressions:
+#               - key: node.kubernetes.io/instance-type
+#                 operator: In
+#                 values:
+#                   - g4dn.xlarge
