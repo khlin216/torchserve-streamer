@@ -1,3 +1,4 @@
+
 resource "aws_ecr_repository" "torchserve" {
   name                 = "torchserve-repo"
   image_tag_mutability = "MUTABLE"
