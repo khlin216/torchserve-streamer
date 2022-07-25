@@ -141,3 +141,14 @@ kubectl get ds --all-namespaces | grep -i nvidia
 ```
 kubectl get pods -n kube-system | grep -i nvidia
 ```
+
+# ISSUES
+if you see this error:
+```
+│ Error: Kubernetes cluster unreachable: exec plugin: invalid apiVersion "client.authentication.k8s.io/v1alpha1"
+```
+try the following:
+* update aws cli to latest version (to enable v1beta1 instead of v1alpha1)
+* downgrade helm to 3.8 from 3.9
+* remember to set `export KUBE_CONFIG_PATH=~/.kube/config`
+* 
