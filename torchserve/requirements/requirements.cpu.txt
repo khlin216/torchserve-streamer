@@ -1,0 +1,5 @@
+facenet-pytorch===2.5.2
+opencv-python===4.6.0.66
+mmcv===1.6.0
+torchserve===0.6.0
+opencv-python===4.6.0.66

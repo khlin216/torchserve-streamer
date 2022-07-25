@@ -26,7 +26,8 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 GREEN = (0, 255, 0)
-
+EKS_IP = "http://af96e0205f1cd4fb596b105ed08eb494-779418549.us-east-2.elb.amazonaws.com" 
+EKS_IP =  "http://127.0.0.1" # 
 
 def stream_to_url(url, quality='best'):
     if "twitch" in url:
@@ -75,7 +76,7 @@ def detect_faces_online(frame, add2frame=False, timeout=5):
     W_new, H_new = 160, 90
     resized = cv2.resize(frame, (W_new, H_new), interpolation=cv2.INTER_LINEAR)
     r = requests.put(
-            "http://localhost:9001/predictions/all_det",
+            f"{EKS_IP}:9001/predictions/all_det",
             numpy_to_binary(resized), 
             timeout=timeout
         ).content

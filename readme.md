@@ -70,7 +70,7 @@ Checkout dockerfile to see how to install the required libraries
 Or just use the docker version
 
 ```
-sudo docker build -t streamo .
+sudo docker build -f Dockerfile.gpu -t streamo .
 ```
 
 and then to run it add network host option

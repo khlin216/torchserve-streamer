@@ -6,7 +6,7 @@ import time
 import os
 
 ip = "af96e0205f1cd4fb596b105ed08eb494-779418549.us-east-2.elb.amazonaws.com:9001" # change this when having a new cluster
-
+ip = "127.0.0.1:9001"
 all_det = f"http://{ip}/predictions/all_det"
 
 IMG_PATH = "./influencer.png"

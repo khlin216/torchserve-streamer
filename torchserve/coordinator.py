@@ -9,6 +9,7 @@ import mmcv
 from shutil import move, rmtree
 from methods.face_det_init_cnn import create_mtcnn, create_resnet
 from ts.torch_handler.base_handler import BaseHandler
+from ts.metrics.dimension import Dimension
 import base64
 
 from methods.constants import *
@@ -29,6 +30,7 @@ class MMdetHandler(BaseHandler):
             None
         """
         properties = context.system_properties
+        metrics = context.metrics
         self.map_location = MAP_LOCATION
         self.device = torch.device(self.map_location + ':' +
                                    str(properties.get('gpu_id')) if torch.cuda.

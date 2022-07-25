@@ -7,6 +7,7 @@ FROM pytorch/pytorch:${PYTORCH}-cuda${CUDA}-cudnn${CUDNN}-devel
 ENV TORCH_CUDA_ARCH_LIST="6.0 6.1 7.0+PTX"
 ENV TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 ENV CMAKE_PREFIX_PATH="$(dirname $(which conda))/../"
+ENV CUDA_ACTIVATED=True
 
 
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
@@ -25,10 +26,10 @@ RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 git ninja-build 
 
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 
-COPY ./requirements.txt ./requirements.txt
+COPY ./requirements/requirements.gpu.txt ./requirements.txt
 RUN pip install -r requirements.txt
 
-COPY ./configs.properties ./configs.properties
+COPY ./configs/configs.gpu.properties ./configs.propertie
 COPY ./serve_alldet ./serve_alldet
 
 CMD ["torchserve","--start", "--foreground", "--ts-config", "./configs.properties"]

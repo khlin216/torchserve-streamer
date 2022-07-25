@@ -41,8 +41,8 @@ class Swarm:
 
 
 if __name__ == "__main__":
-    for i in range(100):
-        swarm = Swarm(300 + i,0,0,0)
+    for i in range(1):
+        swarm = Swarm(30 + i,0,0,0)
         swarm.run_experiment(0.9)   
         from time import sleep
         sleep(1)
