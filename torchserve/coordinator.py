@@ -1,9 +1,10 @@
+from time import time
 from unittest import result
 from PIL import Image
+from celery import uuid
 
 
 import numpy as np
-import cv2
 import mmcv
 
 from shutil import move, rmtree
@@ -30,7 +31,7 @@ class MMdetHandler(BaseHandler):
             None
         """
         properties = context.system_properties
-        metrics = context.metrics
+        
         self.map_location = MAP_LOCATION
         self.device = torch.device(self.map_location + ':' +
                                    str(properties.get('gpu_id')) if torch.cuda.
@@ -45,14 +46,17 @@ class MMdetHandler(BaseHandler):
         Returns:
             list of cv2 images
         """
+        
         images = []
         for row in data:
             image = row.get('data') or row.get('body')
+            self.context.metrics.add_metric('PackageSize', len(image) // 8000, 'KB', str(uuid.uuid4()))
             if isinstance(image, str):
                 image = base64.b64decode(image)
             image = mmcv.imfrombytes(image)
             img_np = image[:, :, ::-1]
             images.append(img_np)
+        
         return images
 
     def inference(self, data, *args, **kwargs):
@@ -88,13 +92,24 @@ class MMdetHandler(BaseHandler):
         start_time = time.time()
         self.context = context
         metrics = self.context.metrics
+
+        metrics.add_metric('BatchSize', len(data), 'Batches', str(uuid.uuid4()))
+
+
+        tic = time.time()
         data_preprocess = self.preprocess(data)
+        metrics.add_time('PreprocessingTimeForBatch', (time.time() - tic) * 1000,  'ms', str(uuid.uuid4()))
+
+        tic = time.time()
         if not self._is_explain():
             output = self.inference(data_preprocess)
         else:
             output = self.explain_handle(data_preprocess, data)
+        metrics.add_time('InferenceTimeForBatch', (time.time() - tic) * 1000, 'ms', str(uuid.uuid4()))
+
         stop_time = time.time()
         metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
+        
         return output
 
 

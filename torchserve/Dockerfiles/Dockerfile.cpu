@@ -11,6 +11,8 @@ COPY ./requirements/requirements.cpu.txt ./requirements.txt
 RUN pip install -r requirements.txt
 
 COPY ./configs/configs.cpu.properties ./configs.properties
+COPY ./configs/cpu.log4j2.xml ./configs/cpu.log4j2.xml
+
 COPY ./serve_alldet ./serve_alldet
 
 CMD ["torchserve","--start", "--foreground", "--ts-config", "./configs.properties"]
