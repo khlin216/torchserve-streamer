@@ -26,8 +26,8 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 GREEN = (0, 255, 0)
-EKS_IP = "http://af96e0205f1cd4fb596b105ed08eb494-779418549.us-east-2.elb.amazonaws.com" 
-EKS_IP =  "http://127.0.0.1" # 
+EKS_IP = "http://a882f993d5cd94a5781408043ff2371b-1041647793.us-east-2.elb.amazonaws.com" 
+# EKS_IP =  "http://127.0.0.1" # 
 
 def stream_to_url(url, quality='best'):
     if "twitch" in url:
@@ -95,7 +95,7 @@ def write_on_line(text):
     sys.stdout.flush()
 
 
-def main(url, fpath_asset=None, x0=None, y0=None, x1=None, y1=None, quality='best', fps=60.0):
+def main(url, fpath_asset=None, x0=None, y0=None, x1=None, y1=None, quality='best', fps=120.0):
     stream_url = stream_to_url(url)
     log.info("Loading stream {0}".format(stream_url))
     cap = cv2.VideoCapture(stream_url)
@@ -174,7 +174,7 @@ def main(url, fpath_asset=None, x0=None, y0=None, x1=None, y1=None, quality='bes
             # time.sleep(100)
             toc = time.time()
             print(f"FPS = {cnt / (toc - tic)}")
-            if cv2.waitKey(min(1, frame_time - 1000 * int(toc - tic_))) & 0xFF == ord('q'):
+            if cv2.waitKey(max(1, min(1, frame_time - 1000 * int(toc - tic_)))) & 0xFF == ord('q'):
                 break
             print("F", time.time() -tic_)
         except KeyboardInterrupt:

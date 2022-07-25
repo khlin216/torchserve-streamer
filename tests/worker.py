@@ -5,8 +5,8 @@ import base64
 import time
 import os
 
-ip = "af96e0205f1cd4fb596b105ed08eb494-779418549.us-east-2.elb.amazonaws.com:9001" # change this when having a new cluster
-ip = "127.0.0.1:9001"
+ip = "a882f993d5cd94a5781408043ff2371b-1041647793.us-east-2.elb.amazonaws.com:9001" # change this when having a new cluster
+# ip = "127.0.0.1:9001"
 all_det = f"http://{ip}/predictions/all_det"
 
 IMG_PATH = "./influencer.png"
@@ -36,6 +36,7 @@ class Worker(Thread):
         self.test_time = test_time
         self.logs = []
         self.debug = debug
+        self.done = False
 
     def equals(self, x, y):
         return all(a == b for a,b in zip(x,y))
@@ -44,7 +45,8 @@ class Worker(Thread):
         error_log = []
         st = time.time()
         lst = st
-        print(f"starting {self.threadID}")
+        if self.debug:
+            print(f"starting {self.threadID}")
        
         bst = time.time()
         time_elapsed = 0 
@@ -68,11 +70,14 @@ class Worker(Thread):
                 "msg": "fail",
                 "exception": str(e.args)
             })
+            self.done = True
         #time.sleep(self.wait_time)
         lst = bst
         if self.debug:
             print(error_log[-1])
+        self.done = True
         self.logs = error_log
+        self.log = error_log[0]
         return error_log
 
 

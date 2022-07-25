@@ -4,7 +4,7 @@ services:
   torchserve:
     build: 
       context: torchserve
-      dockerfile: Dockerfiles/Dockerfile.gpu
+      dockerfile: Dockerfiles/Dockerfile.{$ARCH:-gpu}
     container_name: torchserve
     restart: always
     image: torchserve-repo:latest
