@@ -3,11 +3,11 @@ from methods.constants import IMG_SHAPE, MAP_LOCATION
 # If required, create a face detection pipeline using MTCNN:
 
 
-def create_mtcnn():
+def create_mtcnn(device=MAP_LOCATION):
     mtcnn = MTCNN(
         image_size=IMG_SHAPE, margin=0, min_face_size=10,
         thresholds=[0.6, 0.7, 0.7], factor=0.709, post_process=True,
-        device=MAP_LOCATION
+        device=device
     )
     return mtcnn
 

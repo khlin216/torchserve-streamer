@@ -27,7 +27,7 @@ except ImportError:
 log = logging.getLogger(__name__)
 GREEN = (0, 255, 0)
 EKS_IP = "http://a882f993d5cd94a5781408043ff2371b-1041647793.us-east-2.elb.amazonaws.com" 
-# EKS_IP =  "http://127.0.0.1" # 
+EKS_IP =  "http://127.0.0.1" # 
 
 def stream_to_url(url, quality='best'):
     if "twitch" in url:

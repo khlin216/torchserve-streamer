@@ -57,10 +57,10 @@ class Swarm:
 
 if __name__ == "__main__":
     successes, resp_times, counts = 0, 0,0 
-    TOTAL_LEN= 10
+    TOTAL_LEN= 1
     
     for i in range(TOTAL_LEN):
-        swarm = Swarm(1000,0,0,0)
+        swarm = Swarm(600,0,0,0)
         resp_time, success, count = swarm.run_experiment(100)
         successes += success
         counts += count

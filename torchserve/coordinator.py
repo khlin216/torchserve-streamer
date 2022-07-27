@@ -1,8 +1,7 @@
-from time import time
 from unittest import result
 from PIL import Image
-from celery import uuid
-
+import uuid
+import time
 
 import numpy as np
 import mmcv
@@ -37,7 +36,8 @@ class MMdetHandler(BaseHandler):
                                    str(properties.get('gpu_id')) if torch.cuda.
                                    is_available() else self.map_location)
         # assert self.device == "cuda", "GPU ISNT RECOGNIZED"
-        self.mtcnn = create_mtcnn()
+        self.mtcnn = create_mtcnn('cuda')
+        return self
 
     def preprocess(self, data):
         """
@@ -64,10 +64,13 @@ class MMdetHandler(BaseHandler):
         Args:
             data: list of cv2 images
         Returns:
-            textract-like response representing the table/cell/text structure in the image
+            
         """
+        tic = time.time()
 
         boxes_list, confidence_list = self.mtcnn.detect(data)
+        
+
         results = []
         for boxes in boxes_list:
             result = []
@@ -76,7 +79,15 @@ class MMdetHandler(BaseHandler):
                 continue
             for box in boxes:
                 result.append([int(round(i)) for i in box])
-        return results
+        print(f"BatchSize.Batches:{len(data)}")        
+        idx = str(uuid.uuid4())
+        self.context.metrics.add_time(
+            'InternalInferenceTimeForBatch', 
+            (time.time() - tic) * 1000, 
+            idx, 'ms'
+        )
+
+        return np.array(results)
 
     def handle(self, data, context):
         """Entry point for default handler. It takes the data from the input request and returns
@@ -88,27 +99,26 @@ class MMdetHandler(BaseHandler):
         Returns:
             list : Returns a list of dictionary with the predicted response.
         """
-        import time
         start_time = time.time()
         self.context = context
         metrics = self.context.metrics
-
-        metrics.add_metric('BatchSize', len(data), 'Batches', str(uuid.uuid4()))
+        idx = str(uuid.uuid4())
+        metrics.add_metric('BatchSize', len(data), idx, 'Batches')
 
 
         tic = time.time()
         data_preprocess = self.preprocess(data)
-        metrics.add_time('PreprocessingTimeForBatch', (time.time() - tic) * 1000,  'ms', str(uuid.uuid4()))
+        metrics.add_time('PreprocessingTimeForBatch', (time.time() - tic) * 1000, idx,  'ms')
 
         tic = time.time()
         if not self._is_explain():
             output = self.inference(data_preprocess)
         else:
             output = self.explain_handle(data_preprocess, data)
-        metrics.add_time('InferenceTimeForBatch', (time.time() - tic) * 1000, 'ms', str(uuid.uuid4()))
+        metrics.add_time('InferenceTimeForBatch', (time.time() - tic) * 1000, idx, 'ms')
 
         stop_time = time.time()
-        metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
+        metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), idx, 'ms')
         
         return output
 

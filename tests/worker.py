@@ -6,7 +6,7 @@ import time
 import os
 
 ip = "a882f993d5cd94a5781408043ff2371b-1041647793.us-east-2.elb.amazonaws.com:9001" # change this when having a new cluster
-# ip = "127.0.0.1:9001"
+ip = "127.0.0.1:9001"
 all_det = f"http://{ip}/predictions/all_det"
 
 IMG_PATH = "./influencer.png"
@@ -70,6 +70,7 @@ class Worker(Thread):
                 "msg": "fail",
                 "exception": str(e.args)
             })
+            #print(error_log[0]["exception"])
             self.done = True
         #time.sleep(self.wait_time)
         lst = bst

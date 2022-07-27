@@ -2,9 +2,10 @@ version: "3.7"
 
 services:
   torchserve:
+
     build: 
       context: torchserve
-      dockerfile: Dockerfiles/Dockerfile.{$ARCH:-gpu}
+      dockerfile: Dockerfiles/Dockerfile.gpu
     container_name: torchserve
     restart: always
     image: torchserve-repo:latest
@@ -12,7 +13,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-   
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
     ports:
       - "9001:9001"
       - "9002:9002"
@@ -36,5 +38,6 @@ services:
    
     ports:
       - "9090:9090"
+    
 
       

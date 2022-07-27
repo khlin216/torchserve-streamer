@@ -6,7 +6,7 @@ import unittest
 import time
 
 class Test_Coordinator(unittest.TestCase):
-    def __init__(self, methodName="coordinator") -> None:
+    def __init__(self, methodName="coordinator"):
 
         class Metrics:
             def add_time(self, *args, **kwargs):
