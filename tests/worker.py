@@ -9,15 +9,15 @@ ip = "a882f993d5cd94a5781408043ff2371b-1041647793.us-east-2.elb.amazonaws.com:90
 ip = "127.0.0.1:9001"
 all_det = f"http://{ip}/predictions/all_det"
 
-IMG_PATH = "./influencer.png"
-IMG_COORDS =[[70, 14, 91, 43], [131, 28, 146, 50]]
+IMG_PATH = "./influencer2.png"
+IMG_COORDS =[[182, 38, 229, 102]]
 
 def request_json():
 
     decompressed_image_bytes = open(IMG_PATH, "rb").read()
-   
+    #print(len(decompressed_image_bytes))
     response_raw = requests.put(all_det, data=decompressed_image_bytes)
-
+    #print(response_raw)
     response_json = response_raw.json()
     
     return response_json, response_raw.elapsed.microseconds / 1e6

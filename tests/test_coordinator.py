@@ -4,6 +4,7 @@ sys.path.append("../torchserve")
 from  coordinator import MMdetHandler
 import unittest
 import time
+import numpy as np
 
 class Test_Coordinator(unittest.TestCase):
     def __init__(self, methodName="coordinator"):
@@ -40,10 +41,18 @@ class Test_Coordinator(unittest.TestCase):
         print("Initializing")
         def handle_once():
             tic = time.time()
-            self.handle(batch, self.context)
+            res = self.handle(batch, self.context)
             toc = time.time()
             print("HandleTime", toc - tic)
-        for _ in range(1):
-            handle_once()
+            return res
+        tms = []
+        for _ in range(10):
+            tic = time.time()
+            resp = handle_once()
+            toc = time.time()
+            tms.append(toc - tic)
+           
+        tms = np.array(tms)
+        print(tms.mean(), tms.max(), tms.min(), tms.std())
 if __name__ == "__main__":
     unittest.main()

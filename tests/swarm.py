@@ -28,7 +28,7 @@ class Swarm:
                 count += 1
                 success += 1 if worker.log["msg"] == "success" else 0
             int_sec = int(time.time() - tic) 
-            if  int_sec % 5 == 0 and int_sec not in logset:
+            if  int_sec % 1 == 0 and int_sec not in logset:
                 logset.add(int_sec)
                 print(success, count, "left", interval - (time.time() - tic))
             workers = workers 
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     TOTAL_LEN= 1
     
     for i in range(TOTAL_LEN):
-        swarm = Swarm(600,0,0,0)
+        swarm = Swarm(300,0,0,0)
         resp_time, success, count = swarm.run_experiment(100)
         successes += success
         counts += count

@@ -86,8 +86,9 @@ class MMdetHandler(BaseHandler):
             (time.time() - tic) * 1000, 
             idx, 'ms'
         )
+        
 
-        return np.array(results)
+        return results
 
     def handle(self, data, context):
         """Entry point for default handler. It takes the data from the input request and returns

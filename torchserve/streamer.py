@@ -17,6 +17,7 @@ import os.path
 import json
 import matplotlib.pyplot as plt
 import numpy as np
+from methods.constants import IMG_HEIGHT, IMG_WIDTH
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 try:
     import cv2
@@ -73,17 +74,23 @@ def numpy_to_binary(arr):
 
 def detect_faces_online(frame, add2frame=False, timeout=5):
     X_sz, Y_sz = frame.shape[:2]
-    W_new, H_new = 160, 90
+    W_new, H_new = IMG_WIDTH, IMG_HEIGHT
     resized = cv2.resize(frame, (W_new, H_new), interpolation=cv2.INTER_LINEAR)
     r = requests.put(
             f"{EKS_IP}:9001/predictions/all_det",
             numpy_to_binary(resized), 
             timeout=timeout
         ).content
+
     scale_X = Y_sz / W_new
     scale_Y = X_sz / H_new
 
     boxes = json.loads(r.decode())
+    #assert 0, boxes
+    if isinstance(boxes, dict):
+        print(boxes)
+        exit(1)
+        boxes = []
     boxes = [[x1 * scale_X, y1 * scale_Y , x2* scale_X, y2 * scale_Y] for x1, y1, x2, y2 in boxes]
     if add2frame:
         add_rect2frame(frame, boxes)
@@ -129,6 +136,7 @@ def main(url, fpath_asset=None, x0=None, y0=None, x1=None, y1=None, quality='bes
     frames_queue = []
     beginning = True
     boxes = InertialBoxes(b=0.90)
+    lst_image = np.ones((IMG_WIDTH, IMG_HEIGHT, 3))
     while True:
         try:
             tic_ = time.time()
@@ -153,6 +161,7 @@ def main(url, fpath_asset=None, x0=None, y0=None, x1=None, y1=None, quality='bes
                 future = next(concurrent.futures.as_completed(futures[0:1]))
                 print("B", time.time() -tic_)
                 boxes_new = future.result()
+                print("B.1")
                 boxes.tick()
                 for box in boxes_new:
                     boxes.handle_box(box)
@@ -163,12 +172,16 @@ def main(url, fpath_asset=None, x0=None, y0=None, x1=None, y1=None, quality='bes
                 augment(frame, [box["coords"] for box in boxes.info], asset)
                 print("D", time.time() -tic_)
                 cv2.imshow('frame', cv2.resize(frame, (1920//2, 1080//2)))
+                lst_image = frame
                 cnt += 1
                 print("E", time.time() -tic_)
 
             except Exception as e:
-                print(e)
-                exit(1)
+                #print(e.args)
+                print("Err#1")
+                cv2.imshow('frame', cv2.resize(lst_image, (1920//2, 1080//2)))
+                cnt += 1
+                #exit(1)
                 #time.sleep(100)
 
             # time.sleep(100)
