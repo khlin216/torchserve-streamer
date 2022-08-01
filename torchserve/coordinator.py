@@ -36,7 +36,7 @@ class MMdetHandler(BaseHandler):
                                    str(properties.get('gpu_id')) if torch.cuda.
                                    is_available() else self.map_location)
         # assert self.device == "cuda", "GPU ISNT RECOGNIZED"
-        self.mtcnn = create_mtcnn('cuda')
+        self.mtcnn = create_mtcnn(MAP_LOCATION)
         return self
 
     def preprocess(self, data):

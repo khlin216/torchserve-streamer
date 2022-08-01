@@ -1,6 +1,7 @@
 from threading import Thread
 import os
 import json
+import time
 from worker import Worker
 
 class Swarm:
@@ -13,7 +14,7 @@ class Swarm:
         self.debug = debug
         self.image_path = image_path
     
-    def run_experiment(self, interval=20):
+    def run_experiment(self, interval=20, fps=120):
         print(f"Running experiment #={self.workers_number}")
         import time
         resp_time, count, success, tic =0, 0, 0, time.time()
@@ -40,7 +41,8 @@ class Swarm:
                 image_path=self.image_path,
                 debug=False
             ) for i in range(self.workers_number - len(workers))]
-            for worker in new_workers:            
+            for worker in new_workers:   
+                time.sleep(1./fps)         
                 worker.start()
             workers = workers + new_workers
             toc = time.time()
@@ -58,10 +60,10 @@ class Swarm:
 if __name__ == "__main__":
     successes, resp_times, counts = 0, 0,0 
     TOTAL_LEN= 1
-    
+    print("Started")
     for i in range(TOTAL_LEN):
         swarm = Swarm(300,0,0,0)
-        resp_time, success, count = swarm.run_experiment(100)
+        resp_time, success, count = swarm.run_experiment(fps=1000)
         successes += success
         counts += count
         resp_time += resp_time
@@ -71,4 +73,5 @@ if __name__ == "__main__":
     successes = successes 
     resp_time = resp_time 
     print(f"Success rate= ({successes}/{counts}), response time = {resp_times/count}")
+    time.sleep(1000)
     

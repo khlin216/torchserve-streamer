@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: torchserve-tester
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      name: torchserve-elb
+  template:
+    metadata:
+      labels:
+        name: torchserve-elb
+    spec:
+      containers:
+        - name: torchserve-app
+          image: 466956024587.dkr.ecr.us-east-2.amazonaws.com/torchserve-repo:tester
+          imagePullPolicy: Always
+          ports:
+       
+          - containerPort: 5000
+            name: inference
+            protocol: TCP
+
+
+          env:
+          - name: DP_DISABLE_HEALTHCHECKS
+            value: "xids"
+          resources:
+            requests:
+              ephemeral-storage: "8Gi"
+              cpu: 1000m
+              memory: 3000Mi
+            limits:
+              
+              ephemeral-storage: "8Gi"
+
+      restartPolicy: Always
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node.kubernetes.io/instance-type
+                operator: In
+                values:
+                  - t3.medium
