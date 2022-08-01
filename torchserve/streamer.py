@@ -27,8 +27,8 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 GREEN = (0, 255, 0)
-EKS_IP = "http://a882f993d5cd94a5781408043ff2371b-1041647793.us-east-2.elb.amazonaws.com" 
-EKS_IP =  "http://127.0.0.1" # 
+EKS_IP = "http://ac1079231337f47aabdc6aa6e7a2be07-233993352.us-east-2.elb.amazonaws.com" 
+# EKS_IP =  "http://127.0.0.1" # 
 
 def stream_to_url(url, quality='best'):
     if "twitch" in url:
@@ -102,7 +102,7 @@ def write_on_line(text):
     sys.stdout.flush()
 
 
-def main(url, fpath_asset=None, x0=None, y0=None, x1=None, y1=None, quality='best', fps=120.0):
+def main(url, fpath_asset=None, x0=None, y0=None, x1=None, y1=None, quality='best', fps=300.0):
     stream_url = stream_to_url(url)
     log.info("Loading stream {0}".format(stream_url))
     cap = cv2.VideoCapture(stream_url)

@@ -5,8 +5,11 @@ import base64
 import time
 import os
 
-ip = "a882f993d5cd94a5781408043ff2371b-1041647793.us-east-2.elb.amazonaws.com:9001" # change this when having a new cluster
-ip = "127.0.0.1:9001"
+ip = "a0b249ece73d142fc88835197237c754-98800744.us-east-2.elb.amazonaws.com:9001" # change this when having a new cluster
+# ip = "127.0.0.1:9001"
+if os.environ.get("EKS", "False") == "True":
+    ip = "torchserve-elb:9001"
+    print("TARGET ELB IP IS", ip)
 all_det = f"http://{ip}/predictions/all_det"
 
 IMG_PATH = "./influencer2.png"
@@ -17,12 +20,15 @@ def request_json():
     decompressed_image_bytes = open(IMG_PATH, "rb").read()
     #print(len(decompressed_image_bytes))
     response_raw = requests.put(all_det, data=decompressed_image_bytes)
-    #print(response_raw)
+    #print(response_raw.content)
     response_json = response_raw.json()
     
     return response_json, response_raw.elapsed.microseconds / 1e6
 
-
+def equals( x, y):
+        if isinstance(x, list):
+            return all(equals(a,b) for a,b in zip(x,y))
+        return abs(x - y) < 10
 class Worker(Thread):
 
     def __init__(self, threadID, wait_time, image_path, test_time=60, debug=True, experiment="swarm"):
@@ -38,8 +44,7 @@ class Worker(Thread):
         self.debug = debug
         self.done = False
 
-    def equals(self, x, y):
-        return all(a == b for a,b in zip(x,y))
+    
 
     def run(self):
         error_log = []
@@ -52,7 +57,9 @@ class Worker(Thread):
         time_elapsed = 0 
         try:
             blocks, time_elapsed = request_json()
-            assert self.equals(blocks, IMG_COORDS), " error from server side" + str(len(blocks)) + " " + str(blocks)
+            
+            assert equals(blocks, IMG_COORDS), " error from server side" + str(len(blocks)) + " " + str(blocks)
+
             error_log.append({
                 "thread_id": self.threadID,
                 "experiment#": self.experiment,
@@ -83,5 +90,7 @@ class Worker(Thread):
 
 
 if __name__ == "__main__":
-
+    tic = time.time()
     print(request_json())
+    print("Time", time.time() - tic)
+    print(equals( [[182, 38, 229, 105]], [[182, 38, 229, 102]]))
