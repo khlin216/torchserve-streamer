@@ -1,0 +1,43 @@
+version: "3.7"
+
+services:
+  torchserve:
+
+    build: 
+      context: torchserve
+      dockerfile: Dockerfiles/Dockerfile.gpu
+    container_name: torchserve
+    restart: always
+    image: torchserve-repo:latest
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    ports:
+      - "9001:9001"
+      - "9002:9002"
+      - "9003:9003"
+      - "7000:7000"
+      - "7001:7001"
+      
+  prometheus:
+    build: 
+      context: prometheus
+      dockerfile: Dockerfile
+    container_name: prometheus
+    restart: always
+    image: torchserve-repo:prometheus
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - ARCH=k8s
+   
+    ports:
+      - "9090:9090"
+    
+
+      

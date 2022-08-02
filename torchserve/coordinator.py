@@ -1,14 +1,15 @@
 from unittest import result
 from PIL import Image
-
+import uuid
+import time
 
 import numpy as np
-import cv2
 import mmcv
 
 from shutil import move, rmtree
 from methods.face_det_init_cnn import create_mtcnn, create_resnet
 from ts.torch_handler.base_handler import BaseHandler
+from ts.metrics.dimension import Dimension
 import base64
 
 from methods.constants import *
@@ -29,12 +30,14 @@ class MMdetHandler(BaseHandler):
             None
         """
         properties = context.system_properties
+        
         self.map_location = MAP_LOCATION
         self.device = torch.device(self.map_location + ':' +
                                    str(properties.get('gpu_id')) if torch.cuda.
                                    is_available() else self.map_location)
         # assert self.device == "cuda", "GPU ISNT RECOGNIZED"
-        self.mtcnn = create_mtcnn()
+        self.mtcnn = create_mtcnn(MAP_LOCATION)
+        return self
 
     def preprocess(self, data):
         """
@@ -43,14 +46,17 @@ class MMdetHandler(BaseHandler):
         Returns:
             list of cv2 images
         """
+        
         images = []
         for row in data:
             image = row.get('data') or row.get('body')
+            self.context.metrics.add_metric('PackageSize', len(image) // 8000, 'KB', str(uuid.uuid4()))
             if isinstance(image, str):
                 image = base64.b64decode(image)
             image = mmcv.imfrombytes(image)
             img_np = image[:, :, ::-1]
             images.append(img_np)
+        
         return images
 
     def inference(self, data, *args, **kwargs):
@@ -58,10 +64,13 @@ class MMdetHandler(BaseHandler):
         Args:
             data: list of cv2 images
         Returns:
-            textract-like response representing the table/cell/text structure in the image
+            
         """
+        tic = time.time()
 
         boxes_list, confidence_list = self.mtcnn.detect(data)
+        
+
         results = []
         for boxes in boxes_list:
             result = []
@@ -70,6 +79,15 @@ class MMdetHandler(BaseHandler):
                 continue
             for box in boxes:
                 result.append([int(round(i)) for i in box])
+        print(f"BatchSize.Batches:{len(data)}")        
+        idx = str(uuid.uuid4())
+        self.context.metrics.add_time(
+            'InternalInferenceTimeForBatch', 
+            (time.time() - tic) * 1000, 
+            idx, 'ms'
+        )
+        
+
         return results
 
     def handle(self, data, context):
@@ -82,17 +100,27 @@ class MMdetHandler(BaseHandler):
         Returns:
             list : Returns a list of dictionary with the predicted response.
         """
-        import time
         start_time = time.time()
         self.context = context
         metrics = self.context.metrics
+        idx = str(uuid.uuid4())
+        metrics.add_metric('BatchSize', len(data), idx, 'Batches')
+
+
+        tic = time.time()
         data_preprocess = self.preprocess(data)
+        metrics.add_time('PreprocessingTimeForBatch', (time.time() - tic) * 1000, idx,  'ms')
+
+        tic = time.time()
         if not self._is_explain():
             output = self.inference(data_preprocess)
         else:
             output = self.explain_handle(data_preprocess, data)
+        metrics.add_time('InferenceTimeForBatch', (time.time() - tic) * 1000, idx, 'ms')
+
         stop_time = time.time()
-        metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), None, 'ms')
+        metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), idx, 'ms')
+        
         return output
 
 
