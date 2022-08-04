@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: torchserve
+spec:
+  replicas: 95
+  selector:
+    matchLabels:
+      name: torchserve-elb
+  template:
+    metadata:
+      labels:
+        name: torchserve-elb
+    spec:
+      containers:
+        - name: torchserve-app
+          image: 466956024587.dkr.ecr.us-east-2.amazonaws.com/torchserve-repo:latest
+          imagePullPolicy: Always
+          ports:
+       
+          - containerPort: 9001
+            name: inference
+            protocol: TCP
+
+          - containerPort: 9002
+            name: management
+            protocol: TCP
+
+          - containerPort: 9003
+            name: metrics
+            protocol: TCP
+
+          - containerPort: 7000
+            name: grpc-inference
+            protocol: TCP
+
+          - containerPort: 7001
+            name: grpc-management
+            protocol: TCP
+
+          - containerPort: 8501
+            name: test
+            protocol: TCP
+
+          env:
+          - name: DP_DISABLE_HEALTHCHECKS
+            value: "xids"
+          resources:
+            requests:
+              ephemeral-storage: "8Gi"
+              cpu: 1000m
+              memory: 3000Mi
+            limits:
+              
+              ephemeral-storage: "8Gi"
+
+      restartPolicy: Always
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node.kubernetes.io/instance-type
+                operator: In
+                values:
+                  - t3.medium
