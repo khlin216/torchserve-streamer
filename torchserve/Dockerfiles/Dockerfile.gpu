@@ -1,0 +1,23 @@
+FROM pytorch/torchserve:0.6.0-gpu
+
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
+USER root
+
+# RUN apt-get update && apt-get install -y gnupg2
+RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
+RUN apt  update
+ENV CUDA_ENABLED=True
+RUN apt -y install ffmpeg libsm6 libxext6  
+
+
+
+COPY ./requirements/requirements.gpu.txt ./requirements.txt
+RUN pip install -r requirements.txt
+
+COPY ./configs/configs.gpu.properties ./configs.properties
+COPY ./configs/gpu.log4j2.xml ./configs/gpu.log4j2.xml
+
+COPY ./serve_alldet ./serve_alldet
+
+CMD ["torchserve","--start", "--foreground", "--ts-config", "./configs.properties"]
+

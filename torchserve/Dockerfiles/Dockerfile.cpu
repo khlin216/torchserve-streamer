@@ -1,0 +1,18 @@
+FROM pytorch/torchserve
+
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
+ENV CUDA_ACTIVATED=False
+USER root
+RUN apt  update
+RUN apt -y install ffmpeg libsm6 libxext6  
+
+
+COPY ./requirements/requirements.cpu.txt ./requirements.txt
+RUN pip install -r requirements.txt
+
+COPY ./configs/configs.cpu.properties ./configs.properties
+COPY ./configs/cpu.log4j2.xml ./configs/cpu.log4j2.xml
+
+COPY ./serve_alldet ./serve_alldet
+
+CMD ["torchserve","--start", "--foreground", "--ts-config", "./configs.properties"]

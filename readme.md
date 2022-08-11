@@ -51,7 +51,7 @@ In repo and after you run terraform envoloped in stars
     └── streamer.py
 
 ```
-# How to run
+# How to run locally
 
 Firstly we need to convert all of the source code into .mar file
 
@@ -70,9 +70,13 @@ Checkout dockerfile to see how to install the required libraries
 Or just use the docker version
 
 ```
-sudo docker build -t streamo .
+sudo docker build -f Dockerfile.gpu -t streamo .
 ```
 
+For the cpu version
+```
+sudo docker build -f Dockerfile.gpu -t streamo .
+```
 and then to run it add network host option
 
 ```
@@ -103,10 +107,11 @@ python streamer.py  https://www.twitch.tv/matteohs
 
 or any other url. Make sure that you have a GPU otherwise the facedetection model will become super slow and the torchserve workers will return timeouts that I havent taken into account in the streaming code.
 
+# Deploy on AWS
 
-# Terraform
+## Terraform
 
-
+Build infra on aws using the following code or using the bash script in ```eks/terraform/terraform-run.sh```
 ```
 export KUBE_CONFIG_PATH=~/.kube/config
 terraform init
@@ -121,6 +126,19 @@ cd ./eks/k8s
 kubectl apply -f .
 kubectl get svc -o wide
 ```
+
+after you finish building the infrastructure (make sure what are you using a GPU cluster or a CPU cluster)
+
+Build an image depending on the type of the cluster in ```torchserve/Dockerfiles/```
+
+For example to build the CPU image you can run
+
+```sudo docker build -f Dockerfiles/Dockerfile.cpu -t torchserve-repo . ```
+
+After that use the push commands in AWS.ECR and push the image to ECR repo.
+
+Now you can apply the configs of k8s in ```eks/k8s``` or ```eks/k8s.cpu```
+
 
 # NOTES
 
