@@ -151,4 +151,13 @@ try the following:
 * update aws cli to latest version (to enable v1beta1 instead of v1alpha1)
 * downgrade helm to 3.8 from 3.9
 * remember to set `export KUBE_CONFIG_PATH=~/.kube/config`
-* 
+
+
+### steps to add a new model:
+first, create .mar for new model:
+* copy `coordinator.py`
+* edit `methods/torchserve2mar.py` to use new coordinator name
+* from `torchserve` directory run: `$ python methods/torchserve2mar.py`
+* edit `configs/configs.cpu.properties` to add new model using similar syntax
+* push image to ecr and follow push instructions on there
+* delete `torchserve` deployment and bring it up again
