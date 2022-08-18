@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: torchserve
 spec:
-  replicas: 95
+  replicas: 10
   selector:
     matchLabels:
       name: torchserve-elb
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: torchserve-app
-          image: 466956024587.dkr.ecr.us-east-2.amazonaws.com/torchserve-repo:latest
+          image: 814594265042.dkr.ecr.us-east-2.amazonaws.com/torchserve-repo:latest
           imagePullPolicy: Always
           ports:
        
