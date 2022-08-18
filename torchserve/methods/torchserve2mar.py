@@ -3,6 +3,7 @@ import os
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import shutil
 
 import mmcv
 
@@ -18,6 +19,7 @@ def mmdet2torchserve(
         output_folder: str,
         model_name: str,
         model_path: str,
+        coordinator: str,
         model_version: str = '1.0',
         force: bool = False,
 ):
@@ -28,18 +30,20 @@ def mmdet2torchserve(
     if os.path.isfile("./serve_alldet/all_det.mar"):
         os.remove("./serve_alldet/all_det.mar")
     with TemporaryDirectory() as tmpdir:
+        shutil.copytree("./", tmpdir, dirs_exist_ok=True)
+        shutil.move(os.path.join(tmpdir, coordinator), "coordinator.py")
+        print(tmpdir)
         print(os.listdir(src_root))
         args = Namespace(
             **{
                 'model_file': dummy_file,
-                'handler': f'coordinator.py',
+                'handler': "coordinator.py",
                 'model_name': model_name,
-                'model_path' : "./",
+                'model_path' : tmpdir,
                 'version': model_version,
                 'export_path': output_folder,
                 "serialized_file": dummy_file,
                 'requirements_file': dummy_file,
-                "extra_files": "./",
                 'force': force,
                 'runtime': 'python',
                 'archive_format': 'default',
@@ -50,4 +54,5 @@ def mmdet2torchserve(
 
 
 if __name__ == '__main__':
-    mmdet2torchserve("./", "./serve_alldet/", "all_det", "./model_files", force=True)
+    # mmdet2torchserve("./", "./serve_alldet/", "mtcnn", "./model_files",coordinator="./coordinators/coordinator.py", force=True) # dont add unless its needed as torchserve will automatically host it
+    mmdet2torchserve("./", "./serve_alldet/", "triangle", "./model_files",coordinator="./coordinators/triangles_coordinator.py", force=True)

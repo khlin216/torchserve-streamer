@@ -4,21 +4,19 @@ import uuid
 import time
 
 import numpy as np
-import mmcv
-
-from shutil import move, rmtree
-from methods.face_det_init_cnn import create_mtcnn, create_resnet
-from ts.torch_handler.base_handler import BaseHandler
-from ts.metrics.dimension import Dimension
 import base64
+import mmcv
+import cv2
+import torch
 
-from methods.constants import *
+from methods.constants import TRIANGLE_MODEL_PATH, MAP_LOCATION
+from predictors.triangle.infer_standalone import infer, load_model
+ 
+from ts.torch_handler.base_handler import BaseHandler
 
 
-print("STUFF IN THE DIRECTORY")
-
-
-class MMdetHandler(BaseHandler):
+class TraingleHandler(BaseHandler):
+    
     def initialize(self, context):
         """
         Args:
@@ -36,7 +34,8 @@ class MMdetHandler(BaseHandler):
                                    str(properties.get('gpu_id')) if torch.cuda.
                                    is_available() else self.map_location)
         # assert self.device == "cuda", "GPU ISNT RECOGNIZED"
-        self.mtcnn = create_mtcnn(MAP_LOCATION)
+        print("DEVICE", self.device)
+        self.triangle_model = load_model(TRIANGLE_MODEL_PATH, map_location=self.device)
         return self
 
     def preprocess(self, data):
@@ -53,9 +52,12 @@ class MMdetHandler(BaseHandler):
             self.context.metrics.add_metric('PackageSize', len(image) // 8000, 'KB', str(uuid.uuid4()))
             if isinstance(image, str):
                 image = base64.b64decode(image)
-            image = mmcv.imfrombytes(image)
-            img_np = image[:, :, ::-1]
-            images.append(img_np)
+            img = mmcv.imfrombytes(image)
+            img = img[:, :, ::-1] # bgr --> rgb 
+            img = cv2.resize(img, (640, 640))
+            img = img.transpose((2, 0, 1))  # h, w, c --> c, h, w
+            
+            images.append(img)
         
         return images
 
@@ -67,18 +69,13 @@ class MMdetHandler(BaseHandler):
             
         """
         tic = time.time()
-
-        boxes_list, confidence_list = self.mtcnn.detect(data)
+        results = []
+        for img in data:
+            results.append(infer(model=self.triangle_model, img=img))
         
 
-        results = []
-        for boxes in boxes_list:
-            result = []
-            results.append(result)
-            if boxes is None:
-                continue
-            for box in boxes:
-                result.append([int(round(i)) for i in box])
+        
+        
         print(f"BatchSize.Batches:{len(data)}")        
         idx = str(uuid.uuid4())
         self.context.metrics.add_time(
@@ -86,7 +83,6 @@ class MMdetHandler(BaseHandler):
             (time.time() - tic) * 1000, 
             idx, 'ms'
         )
-        
 
         return results
 
@@ -102,6 +98,7 @@ class MMdetHandler(BaseHandler):
         """
         start_time = time.time()
         self.context = context
+         
         metrics = self.context.metrics
         idx = str(uuid.uuid4())
         metrics.add_metric('BatchSize', len(data), idx, 'Batches')
@@ -123,9 +120,20 @@ class MMdetHandler(BaseHandler):
         
         return output
 
-
 if __name__ == '__main__':
-    # class Temp:
-    #     system_properties = {"gpu_id": "0"}
-    # MMdetHandler().initialize(Temp())
-    pass
+    class Metrics:
+            def add_time(self, *args, **kwargs):
+                pass
+    class Temp:
+        system_properties = {"gpu_id": "0"}
+        
+        metrics = Metrics()
+        # def __str__(self):
+        #     return ("here")
+    print("tmp", Temp())
+    img = open("./predictors/triangle/img.png","rb").read()
+    imgs =TraingleHandler().initialize(Temp()).preprocess([{"data" : img}])
+
+    print(TraingleHandler().initialize(Temp()).inference(imgs))
+    time.sleep(10)
+    

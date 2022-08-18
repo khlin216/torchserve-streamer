@@ -6,13 +6,13 @@ import time
 import os
 
 ip = "a0b249ece73d142fc88835197237c754-98800744.us-east-2.elb.amazonaws.com:9001" # change this when having a new cluster
-# ip = "127.0.0.1:9001"
+ip = "127.0.0.1:9001"
 if os.environ.get("EKS", "False") == "True":
     ip = "torchserve-elb:9001"
     print("TARGET ELB IP IS", ip)
-all_det = f"http://{ip}/predictions/all_det"
+all_det = f"http://{ip}/predictions/triangle"
 
-IMG_PATH = "./influencer2.png"
+IMG_PATH = "../torchserve/predictors/triangle/img.png"
 IMG_COORDS =[[182, 38, 229, 102]]
 
 def request_json():
