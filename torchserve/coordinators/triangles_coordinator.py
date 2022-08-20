@@ -28,11 +28,9 @@ class TraingleHandler(BaseHandler):
             None
         """
         properties = context.system_properties
-        
+        self.context=context
         self.map_location = MAP_LOCATION
-        self.device = torch.device(self.map_location + ':' +
-                                   str(properties.get('gpu_id')) if torch.cuda.
-                                   is_available() else self.map_location)
+        self.device = MAP_LOCATION
         # assert self.device == "cuda", "GPU ISNT RECOGNIZED"
         print("DEVICE", self.device)
         self.triangle_model = load_model(TRIANGLE_MODEL_PATH, map_location=self.device)
@@ -59,7 +57,7 @@ class TraingleHandler(BaseHandler):
             
             images.append(img)
         
-        return images
+        return np.array(images)
 
     def inference(self, data, *args, **kwargs):
         """
@@ -69,9 +67,7 @@ class TraingleHandler(BaseHandler):
             
         """
         tic = time.time()
-        results = []
-        for img in data:
-            results.append(infer(model=self.triangle_model, img=img))
+        results = infer(model=self.triangle_model, imgs=data)
         
 
         
@@ -85,7 +81,9 @@ class TraingleHandler(BaseHandler):
         )
 
         return results
-
+    
+     
+        
     def handle(self, data, context):
         """Entry point for default handler. It takes the data from the input request and returns
            the predicted outcome for the input.
@@ -124,16 +122,21 @@ if __name__ == '__main__':
     class Metrics:
             def add_time(self, *args, **kwargs):
                 pass
+            def add_metric(self, *args, **kwargs):
+                pass
+            
     class Temp:
-        system_properties = {"gpu_id": "0"}
         
-        metrics = Metrics()
-        # def __str__(self):
-        #     return ("here")
+        def __init__(self, *args, **kwargs) -> None:
+            self.system_properties = {"gpu_id": "0"}    
+            self.metrics = Metrics()
+        def __str__(self):
+            return ("here")
     print("tmp", Temp())
+    
     img = open("./predictors/triangle/img.png","rb").read()
     imgs =TraingleHandler().initialize(Temp()).preprocess([{"data" : img}])
-
+    
     print(TraingleHandler().initialize(Temp()).inference(imgs))
     time.sleep(10)
     
