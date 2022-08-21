@@ -1,3 +1,4 @@
+from logging import exception
 from os import error
 import requests
 from threading import Thread
@@ -6,7 +7,7 @@ import time
 import os
 
 ip = "a3fa2d8a75e4a4d2dbdfe35f0875501c-17170527.us-east-2.elb.amazonaws.com:9001" # change this when having a new cluster
-#ip = "127.0.0.1:9001"
+ip = "127.0.0.1:9001"
 if os.environ.get("EKS", "False") == "True":
     ip = "torchserve-elb:9001"
     print("TARGET ELB IP IS", ip)
@@ -58,8 +59,9 @@ class Worker(Thread):
         try:
             blocks, time_elapsed = request_json()
             
-            assert equals(blocks, IMG_COORDS), " error from server side" + str(len(blocks)) + " " + str(blocks)
-
+            #assert equals(blocks, IMG_COORDS), " error from server side" + str(len(blocks)) + " " + str(blocks)
+            #print(blocks.keys())
+            assert "img_num" in blocks,"assertion error"
             error_log.append({
                 "thread_id": self.threadID,
                 "experiment#": self.experiment,
@@ -68,6 +70,7 @@ class Worker(Thread):
                 "msg": "success",
                 "blocks": len(blocks)
             })
+            #print("#########################################")
         except Exception as e:
             error_log.append({
                 "thread_id": self.threadID,
@@ -77,6 +80,7 @@ class Worker(Thread):
                 "msg": "fail",
                 "exception": str(e.args)
             })
+            #print(str(e.args))
             #print(error_log[0]["exception"])
             self.done = True
         #time.sleep(self.wait_time)
