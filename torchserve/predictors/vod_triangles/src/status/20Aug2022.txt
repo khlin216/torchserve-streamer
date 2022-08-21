@@ -1,0 +1,30 @@
+Training (src/train_patches.py) & post processing routine (src/test_patches.py) is available 
+(though post processing routine may need more modifications depending on the pipeline.)
+
+All the logs & checkpoints are/will be saved here: https://drive.google.com/drive/folders/1Lx_nogGR2MW1D3RGuEckIPLvddplSqS9?usp=sharing
+
+The datasets are stored here: https://drive.google.com/drive/folders/1JWpW1fkEWB6pLyO7Bp7wCh2jvKtPJc4J?usp=sharing
+
+To run training: 
+python train_patches.py --trainroot ../data/real1x_synth15x/train --valroot ../data/real1x_synth15x/val --accelerator=cuda --devices=1 --backbone resnet18 --outlevel 1 --max_epochs 400 --train_batch 64
+
+To run test_patches.py:
+python test_patches.py --resume_from_checkpoint ".\Colab_logs\res34_2blocks\checkpoints\epoch=2-step=15000.ckpt"
+
+pass appropriate checkpoint with --resume_from_checkpoint option.
+You might have to modify the backbone, outlevel appropriately. But the hyper params are stored inside model too.
+According to pytorch lighting, it automatically takes care of loading hyper params as well. I haven't tested it.
+
+In the test_patches.py, there is a class PatchModelPostProcessor. 
+The idea is to have this class as a standard API that can be init with a checkpoint &
+then can be called with an image to get the post-processed results interms of coords.
+
+SO FAR:
+
+1. Trained Res34 model with only synthetic data & outlevel 2
+2. Trained Res18 model with both synthetic & real data  with heavy augmentation (doesn't perform well, maybe over augmentation / needs more time to train)
+3. Trained Res18 model with both synthetic & real data with only flip, rotation augmentations. 
+The validation results look reasonable. Haven't checked the post processed results.
+
+Overall, I feel that we need more real training data to make the moedl accustomed to the real scenarios.
+Also, the data has more variations and having a less powerful model (only 1 block) due to computational constraints is a bottleneck.

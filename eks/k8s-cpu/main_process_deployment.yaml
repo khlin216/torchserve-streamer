@@ -32,7 +32,6 @@ spec:
               cpu: 1000m
               memory: 3000Mi
             limits:
-              
               ephemeral-storage: "8Gi"
 
       restartPolicy: Always

@@ -22,3 +22,22 @@ tensorboard>=2.4.1
 # Plotting ------------------------------------
 pandas>=1.1.4
 seaborn>=0.11.0
+
+# misc
+ilock===1.0.3
+
+
+# aws 
+nvgpu===0.9.0
+
+# triangle_vod
+
+timm===0.6.7
+pytorch-lightning===1.7.2
+
+# misc
+ilock===1.0.3
+einops===0.4.1
+
+kornia===0.6.6
+natsort===8.1.0
