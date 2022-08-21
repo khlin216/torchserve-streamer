@@ -5,8 +5,8 @@ USER root
 
 # RUN apt-get update && apt-get install -y gnupg2
 RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
-RUN apt  update
-ENV CUDA_ENABLED=True
+RUN apt  update --fix-missing
+ENV CUDA_ACTIVATED=True
 RUN apt -y install ffmpeg libsm6 libxext6  
 
 

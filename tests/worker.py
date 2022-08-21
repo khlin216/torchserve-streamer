@@ -6,7 +6,7 @@ import time
 import os
 
 ip = "a3fa2d8a75e4a4d2dbdfe35f0875501c-17170527.us-east-2.elb.amazonaws.com:9001" # change this when having a new cluster
-#ip = "127.0.0.1:9001"
+ip = "127.0.0.1:9001"
 if os.environ.get("EKS", "False") == "True":
     ip = "torchserve-elb:9001"
     print("TARGET ELB IP IS", ip)
@@ -91,6 +91,8 @@ class Worker(Thread):
 
 if __name__ == "__main__":
     tic = time.time()
-    print(request_json())
+    import json
+    print(json.dumps(request_json()[0], indent=4, sort_keys=True))
+
     print("Time", time.time() - tic)
     print(equals( [[182, 38, 229, 105]], [[182, 38, 229, 102]]))

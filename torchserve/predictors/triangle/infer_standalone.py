@@ -16,7 +16,7 @@ def load_model(weights, map_location):
     
     model = attempt_load(weights, map_location=map_location)
     
-    return model
+    return model.to(map_location)
 
 def infer(imgs: np.ndarray, weights=None, model=None, device="cpu", imgsz=640, half: bool = False,
           conf_thres=0.25, iou_thres=0.45, classes=None):
@@ -39,6 +39,7 @@ def infer(imgs: np.ndarray, weights=None, model=None, device="cpu", imgsz=640, h
             [6.81570e+00, 2.99020e+02, 1.59248e+02, 3.76828e+02, 8.69054e-01, 0.00000e+00],
             [1.81473e+02, 4.63728e+02, 2.98181e+02, 6.00940e+02, 8.66575e-01, 0.00000e+00]])]
 """
+    
     # load assets -- this should probably go into initialize()
       # load FP32 model
     if weights is not None and model is not None:
@@ -50,16 +51,19 @@ def infer(imgs: np.ndarray, weights=None, model=None, device="cpu", imgsz=640, h
     imgsz = check_img_size(imgsz, s=stride)  # check img_size
 
     # do inference -- this should probably go into inference()
-    imgs = torch.from_numpy(imgs).to(device)
+    if isinstance(imgs, np.ndarray):
+        imgs = torch.from_numpy(imgs)
+        imgs = imgs.to(device)
     half = False
     imgs = imgs.half() if half else imgs.float()  # uint8 to fp16/32
     imgs /= 255.0  # 0 - 255 to 0.0 - 1.0
     if imgs.ndimension() == 3:  # add pseudo-batch dimension
         imgs = imgs.unsqueeze(0)
-
-    pred = model(imgs, augment=False)[0]
-    pred = non_max_suppression(pred, conf_thres, iou_thres, classes=classes)
-    
-    pred = [p.detach().cpu().numpy().astype(np.float32).tolist()  for p in pred]
-    return pred
+    with torch.no_grad():
+        pred = model(imgs, augment=False)[0]
+        pred = non_max_suppression(pred, conf_thres, iou_thres, classes=classes)
+        
+        pred = [p.detach().cpu().numpy().astype(np.float32).tolist()  for p in pred]
+        
+        return pred
 

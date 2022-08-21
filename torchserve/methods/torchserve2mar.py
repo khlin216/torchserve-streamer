@@ -45,7 +45,7 @@ def mmdet2torchserve(
                 "serialized_file": dummy_file,
                 'requirements_file': dummy_file,
                 'force': force,
-                'extra_files' : dummy_file,
+                'extra_files' : tmpdir,
                 'runtime': 'python',
                 'archive_format': 'default',
                 'convert': False

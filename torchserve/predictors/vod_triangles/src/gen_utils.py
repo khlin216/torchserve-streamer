@@ -70,6 +70,7 @@ def show_figures(figs):
     for f in figs:
         plt.figure()
         plt.imshow(f)
+        plt.show()
 
 
 def print_shapes(arr):
