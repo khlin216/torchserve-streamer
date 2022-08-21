@@ -26,6 +26,7 @@ class Swarm:
             
             for worker in old_workers:
                 resp_time += worker.log["response_time"]
+                # print(worker.log["exception"])
                 count += 1
                 success += 1 if worker.log["msg"] == "success" else 0
             int_sec = int(time.time() - tic) 

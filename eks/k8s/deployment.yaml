@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: torchserve
+  name: torchserve-deployment-gpu
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       name: torchserve-elb
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: torchserve-app
-          image: 466956024587.dkr.ecr.us-east-2.amazonaws.com/torchserve-repo:latest
+          image: 814594265042.dkr.ecr.us-east-2.amazonaws.com/torchserve-repo:latest
 
           ports:
        

@@ -31,9 +31,7 @@ class ModelHandler(BaseHandler):
         properties = context.system_properties
         
         self.map_location = MAP_LOCATION
-        self.device = torch.device(self.map_location + ':' +
-                                   str(properties.get('gpu_id')) if torch.cuda.
-                                   is_available() else self.map_location)
+        self.device = MAP_LOCATION
         # assert self.device == "cuda", "GPU ISNT RECOGNIZED"
         self.mtcnn = create_mtcnn(MAP_LOCATION)
         return self
