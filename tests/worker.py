@@ -6,7 +6,7 @@ import time
 import os
 
 ip = "a3fa2d8a75e4a4d2dbdfe35f0875501c-17170527.us-east-2.elb.amazonaws.com:9001" # change this when having a new cluster
-ip = "127.0.0.1:9001"
+#ip = "127.0.0.1:9001"
 if os.environ.get("EKS", "False") == "True":
     ip = "torchserve-elb:9001"
     print("TARGET ELB IP IS", ip)

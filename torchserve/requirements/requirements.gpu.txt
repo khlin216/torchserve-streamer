@@ -27,7 +27,8 @@ seaborn>=0.11.0
 ilock===1.0.3
 
 
-
+# aws 
+nvgpu===0.9.0
 
 # triangle_vod
 

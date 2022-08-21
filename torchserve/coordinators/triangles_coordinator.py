@@ -127,14 +127,14 @@ class TraingleHandler(BaseHandler):
                 img_dict = results[translator.img_index]
                 img_dict["img_num"] = translator.img_index # has to be int because of sorting]
 
-                img_dict["triangle_bbox"] = bbox
                 if not "triangles" in img_dict:
                     img_dict["triangles"] = []
                 img_dict["triangles"].append(
                     {
-                        "triangle_num" : translator.triangle_index,
-                        "triangle_vertices" : vert_dicts,
-                        "yolo_confidence" : confidence
+                        "num" : translator.triangle_index,
+                        "vertices" : vert_dicts,
+                        "yolo_confidence" : confidence,
+                        "bbox" : bbox
                     }
                 )
         results = list((results.items()))
