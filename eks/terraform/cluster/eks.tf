@@ -137,7 +137,7 @@ resource "aws_eks_node_group" "nodegroup_gpu" {
   ami_type = "AL2_x86_64_GPU"
   capacity_type = "ON_DEMAND"
   scaling_config {
-    desired_size = 0
+    desired_size = 3
     max_size     = 3
     min_size     = 0
   }
@@ -161,7 +161,7 @@ resource "aws_eks_node_group" "nodegroup_cpu" {
   
   capacity_type = "SPOT"
   scaling_config {
-    desired_size = 10
+    desired_size = 0
     max_size     = 20
     min_size     = 0
   }
