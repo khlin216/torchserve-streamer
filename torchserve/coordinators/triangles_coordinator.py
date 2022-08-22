@@ -99,7 +99,6 @@ class TriangleHandler(BaseHandler):
         return results
 
 
-
     def inference_vertices(self, imgs, triangles_bboxes, *args, **kwargs):
         """
         Args:
@@ -119,7 +118,7 @@ class TriangleHandler(BaseHandler):
 
         for ind, (triangles, translators) in enumerate(fetch_triangles_translators_batches(
                 yolo_output=triangles_bboxes, 
-                imgs=imgs, 
+                imgs=imgs,
                 n_batch=VOD_TRIANGLE_BATCHES,
                 device=self.device
             )):
@@ -171,7 +170,6 @@ class TriangleHandler(BaseHandler):
         idx = str(uuid.uuid4())
         metrics.add_metric('BatchSize', len(data), idx, 'Batches')
 
-
         tic = time.time()
         data_preprocess = self.preprocess(data)
         metrics.add_time('PreprocessingTimeForBatch', (time.time() - tic) * 1000, idx,  'ms')
@@ -201,8 +199,64 @@ class TriangleHandler(BaseHandler):
         
         return vod_vertices
 
+
 if __name__ == '__main__':
-    pass
-         
+    class Metrics:
+            def add_time(self, *args, **kwargs):
+                # print(str(args))
+                pass
+            def add_metric(self, *args, **kwargs):
+                # print(str(args))
+                pass
+            
+    class Temp:
+        
+        def __init__(self, *args, **kwargs) -> None:
+            self.system_properties = {"gpu_id": "0"}    
+            self.metrics = Metrics()
+        def __str__(self):
+            return ("here")
+
+        def get_request_header(self, *args):
+            return False
+    print("tmp", Temp())
+
+    fname = "./predictors/triangle/img.png"
+    img = cv2.cvtColor(cv2.imread(fname), cv2.COLOR_BGR2RGB)
+    img = cv2.resize(img, (640, 640)).tobytes()
+
+    tic = time.time()
+    handler = TriangleHandler().initialize(Temp())
+    results = handler.handle([{"data" : img} for _ in range(50)], Temp())
+     
+    #exit(0)
+    print("Time for init", time.time() - tic)
+    for _ in range(10):
+        tic = time.time()
+        results = handler.handle([{"data" : img} for _ in range(50)], Temp())
+        toc = time.time()
+        print("Handling Time", toc  - tic)
+        print(f"first results: {results[0]}")
+    # for res in results:
+    #     import matplotlib.pyplot as plt
+    #     import mmcv
+    #     img = open("./predictors/triangle/img.png","rb").read()
+
+    #     img = mmcv.imfrombytes(img)
+    #     img = cv2.resize(img, (640,640))
+
+
+    #     plt.imshow(img)
+        
+    #     xs, ys = [], []
+        
+    #     for vert in res["triangle_vertices"]:
+    #         x_ = vert["x"]
+    #         y_ = vert["y"]
+    #         xs.append(x_)
+    #         ys.append(y_)
+    #     print(res)
+    #     plt.scatter(xs,ys)
+    # plt.savefig("./deleteme/giff.png")
 
     
