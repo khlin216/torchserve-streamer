@@ -12,6 +12,7 @@ import cv2
 import torch
 from ts.torch_handler.base_handler import BaseHandler
 from ilock import ILock
+import warnings
 
 from methods.constants import (
     CUDA_ENABLED,
@@ -68,9 +69,10 @@ class TriangleHandler(BaseHandler):
             if isinstance(image, str):
                 image = base64.b64decode(image)
 
-            # img = mmcv.imfrombytes(image)
             img = np.frombuffer(image, dtype=np.uint8).reshape((640, 640, 3))
-            # img = img[:, :, ::-1] # bgr --> rgb
+            if img.shape != (640, 640, 3):
+                warnings.warn(f"img.shape isnt (640,640,3)!={img.shape} undefined behaviour and wrong results can be returned")
+          
             img = img.transpose((2, 0, 1))  # h, w, c --> c, h, w
             images.append(img)
         
@@ -107,6 +109,13 @@ class TriangleHandler(BaseHandler):
 
         tic = time.time()
         results = defaultdict(dict)
+        for img_index in range(len(imgs)):
+            results[img_index] = {
+                "img_index" : img_index,
+                "triangles" : []
+            }  # has to be int because of sorting]
+
+
         for ind, (triangles, translators) in enumerate(fetch_triangles_translators_batches(
                 yolo_output=triangles_bboxes, 
                 imgs=imgs,
@@ -122,10 +131,7 @@ class TriangleHandler(BaseHandler):
                 vert_dicts = convert_coords_list2dicts(tr_vert, translator)
                 bbox, confidence = convert_yolo_output2dict(bbox)
                 img_dict = results[translator.img_index]
-                img_dict["img_num"] = translator.img_index # has to be int because of sorting]
-
-                if not "triangles" in img_dict:
-                    img_dict["triangles"] = []
+                    
                 img_dict["triangles"].append(
                     {
                         "num" : translator.triangle_index,
@@ -143,7 +149,6 @@ class TriangleHandler(BaseHandler):
             (time.time() - tic) * 1000, 
             idx, 'ms'
         )
-        
 
         return list(map(lambda x: x[1], results))
      

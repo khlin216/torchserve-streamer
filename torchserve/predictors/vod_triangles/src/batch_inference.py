@@ -10,8 +10,10 @@ import torch
 vod_triangles_path = os.path.abspath("./predictors/vod_triangles/src")
 print(sys.path)
 sys.path.append(vod_triangles_path)
-
-from .models import SimplePatchCornerModule, NonMaxSuppression
+try:
+    from .models import SimplePatchCornerModule, NonMaxSuppression
+except ImportError:
+    from models import SimplePatchCornerModule, NonMaxSuppression
 import kornia as kn
 
 
@@ -49,8 +51,8 @@ def infer_batch(imgs: np.ndarray, model, nms, normalize, denormalize, device):
 
 def test_batch(batch_sz, model, nms, normalize, denormalize, device):
     image = open("../img.png","rb").read()
-    imgs = mmcv.imfrombytes(image) 
-    imgs = np.array([imgs] * batch_sz)
+    imgs = mmcv.imfrombytes(image)[:, :, ::-1] 
+    imgs = torch.from_numpy(np.array([imgs] * batch_sz)).to(device)
     tic = time.time()
     coords = infer_batch(imgs, model, nms, normalize, denormalize, device)
     print(coords)
