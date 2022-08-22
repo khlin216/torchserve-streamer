@@ -1,3 +1,5 @@
 /torchserve/logs
 /torchserve/serve_alldet
 /.idea
+**/.terraform.tfstate
+**/.terraform.lock.hcl

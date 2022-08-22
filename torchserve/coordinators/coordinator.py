@@ -18,7 +18,7 @@ from methods.constants import *
 print("STUFF IN THE DIRECTORY")
 
 
-class MMdetHandler(BaseHandler):
+class ModelHandler(BaseHandler):
     def initialize(self, context):
         """
         Args:
@@ -50,8 +50,9 @@ class MMdetHandler(BaseHandler):
             self.context.metrics.add_metric('PackageSize', len(image) // 8000, 'KB', str(uuid.uuid4()))
             if isinstance(image, str):
                 image = base64.b64decode(image)
-            image = mmcv.imfrombytes(image)
-            img_np = image[:, :, ::-1]
+            # image = mmcv.imfrombytes(image)  # only if original image is encoded, we're sending raw
+            # img_np = image[:, :, ::-1]
+            img_np = np.frombuffer(image, "uint8")
             images.append(img_np)
         
         return images

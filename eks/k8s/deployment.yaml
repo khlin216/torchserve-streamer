@@ -15,7 +15,7 @@ spec:
       containers:
         - name: torchserve-app
           image: 814594265042.dkr.ecr.us-east-2.amazonaws.com/torchserve-repo:latest
-
+          imagePullPolicy: Always
           ports:
        
           - containerPort: 9001

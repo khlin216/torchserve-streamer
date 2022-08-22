@@ -32,7 +32,7 @@ from methods.misc import (
     convert_yolo_output2dict
 )
 
-class TraingleHandler(BaseHandler):
+class TriangleHandler(BaseHandler):
     
     def initialize(self, context):
         """
@@ -69,11 +69,10 @@ class TraingleHandler(BaseHandler):
             if isinstance(image, str):
                 image = base64.b64decode(image)
 
-            img = mmcv.imfrombytes(image)
+            img = np.frombuffer(image, dtype=np.uint8).reshape((640, 640, 3))
             if img.shape != (640, 640, 3):
                 warnings.warn(f"img.shape isnt (640,640,3)!={img.shape} undefined behaviour and wrong results can be returned")
-            img = img[:, :, ::-1] # bgr --> rgb 
-
+          
             img = img.transpose((2, 0, 1))  # h, w, c --> c, h, w
             images.append(img)
         
@@ -228,7 +227,7 @@ if __name__ == '__main__':
     cvimg = mmcv.imfrombytes(img)
     print(cvimg.shape)
     tic = time.time()
-    handler = TraingleHandler().initialize(Temp())
+    handler = TriangleHandler().initialize(Temp())
     results = handler.handle([{"data" : img} for _ in range(50)], Temp())
      
     #exit(0)
