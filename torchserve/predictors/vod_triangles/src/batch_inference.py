@@ -7,9 +7,6 @@ import mmcv
 import torch
 
 
-
-
-
 vod_triangles_path = os.path.abspath("./predictors/vod_triangles/src")
 print(sys.path)
 sys.path.append(vod_triangles_path)
@@ -35,11 +32,10 @@ def fetch_model(ckpt : str, device : str):
                                         std=torch.tensor([0.229, 0.224, 0.225])) 
     return model, nms, normalize, denormalize
 
+
 def infer_batch(imgs: np.ndarray, model, nms, normalize, denormalize, device):
 
     imgs = imgs.permute(0, 3, 1, 2)
-
-    
     imgs = normalize(imgs)
     with torch.no_grad():
         imgs = imgs.to(device)
@@ -47,18 +43,7 @@ def infer_batch(imgs: np.ndarray, model, nms, normalize, denormalize, device):
 
         # return the triangle coordinates
         nms_seg, points = nms(corner_map_logits)
-        seg_mask = seg_mask_logits.sigmoid()
-        corner_map = corner_map_logits.sigmoid()
-
-        # get segmentation mask, corner mask 
-        imgs = (denormalize(imgs)[0] * 255).permute(1,2,0).cpu().numpy().astype(np.uint8)
-        nms_seg = nms_seg[0,0].cpu().detach().numpy()
-        seg_mask = seg_mask[0,0].cpu().detach().numpy()
-        corner_map = corner_map[0,0].cpu().detach().numpy()
-    
-        
         coords = points[:, :3].cpu().numpy()
-
         return coords
 
 
