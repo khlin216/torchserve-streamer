@@ -31,7 +31,7 @@ from methods.misc import (
     convert_yolo_output2dict
 )
 
-class TraingleHandler(BaseHandler):
+class TriangleHandler(BaseHandler):
     
     def initialize(self, context):
         """
@@ -222,7 +222,7 @@ if __name__ == '__main__':
     img = open("./predictors/triangle/img.png","rb").read()
 
     tic = time.time()
-    handler = TraingleHandler().initialize(Temp())
+    handler = TriangleHandler().initialize(Temp())
     results = handler.handle([{"data" : img} for _ in range(50)], Temp())
      
     #exit(0)
