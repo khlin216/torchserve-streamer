@@ -5,10 +5,15 @@ import warnings
 
 class CoordinatesTranslator:
     def __init__(self, x0, y0, x1, y1, img_index, triangle_index, device) -> None:
-        x0 = int(x0)
-        y0 = int(y0)
-        x1 = int(x1) + 10
-        y1 = int(y1) + 10
+        x0 = int(round(x0))
+        y0 = int(round(y0))
+        x1 = int(round(x1)) 
+        y1 = int(round(y1))
+        H, W = (640, 640)
+        x0 = max(x0, 0)
+        y0 = max(y0, 0)
+        x1 = min(x1, W)
+        y1 = min(y1, H)
         self.device = device
         self.resize_shape = (64, 64)
         self.coords = [x0, y0, x1, y1]
@@ -17,9 +22,16 @@ class CoordinatesTranslator:
         self.tri = (x1 - x0, y1 - y0)
 
 
+    def is_positive_area(self, x0, y0, x1, y1):
+        
+        return  x1 > x0 and y1 > y0
+
+
     def crop_triangle(self, img):
 
         img = img.to(self.device)
+        if list(img.shape) != [3, 640, 640]:
+            raise KeyError(f"img shape should be (640, 640), 3 but found {list(img.shape)}")
         x0, y0, x1, y1 = self.coords
         triangle_ = img[:,y0:y1, x0:x1]#.permute(1, 2, 0)
         triangle_ = triangle_.reshape(1, *triangle_.shape)

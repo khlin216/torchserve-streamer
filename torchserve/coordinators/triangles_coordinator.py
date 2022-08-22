@@ -110,6 +110,13 @@ class TriangleHandler(BaseHandler):
 
         tic = time.time()
         results = defaultdict(dict)
+        for img_index in range(len(imgs)):
+            results[img_index] = {
+                "img_index" : img_index,
+                "triangles" : []
+            }  # has to be int because of sorting]
+
+
         for ind, (triangles, translators) in enumerate(fetch_triangles_translators_batches(
                 yolo_output=triangles_bboxes, 
                 imgs=imgs, 
@@ -124,14 +131,8 @@ class TriangleHandler(BaseHandler):
                 bbox = triangles_bboxes[translator.img_index][translator.triangle_index]
                 vert_dicts = convert_coords_list2dicts(tr_vert, translator)
                 bbox, confidence = convert_yolo_output2dict(bbox)
-                # print(tr_vert)
-                # print(vert_dicts)
-                # print(translator)
                 img_dict = results[translator.img_index]
-                img_dict["img_num"] = translator.img_index # has to be int because of sorting]
-
-                if not "triangles" in img_dict:
-                    img_dict["triangles"] = []
+                    
                 img_dict["triangles"].append(
                     {
                         "num" : translator.triangle_index,
@@ -149,7 +150,6 @@ class TriangleHandler(BaseHandler):
             (time.time() - tic) * 1000, 
             idx, 'ms'
         )
-        
 
         return list(map(lambda x: x[1], results))
      
@@ -202,60 +202,7 @@ class TriangleHandler(BaseHandler):
         return vod_vertices
 
 if __name__ == '__main__':
-    class Metrics:
-            def add_time(self, *args, **kwargs):
-                # print(str(args))
-                pass
-            def add_metric(self, *args, **kwargs):
-                # print(str(args))
-                pass
-            
-    class Temp:
-        
-        def __init__(self, *args, **kwargs) -> None:
-            self.system_properties = {"gpu_id": "0"}    
-            self.metrics = Metrics()
-        def __str__(self):
-            return ("here")
-
-        def get_request_header(self, *args):
-            return False
-    print("tmp", Temp())
-    
-    img = open("./predictors/triangle/img.png","rb").read()
-    img = open("../apex_apex1 (10).png", "rb").read()
-    cvimg = mmcv.imfrombytes(img)
-    print(cvimg.shape)
-    tic = time.time()
-    handler = TriangleHandler().initialize(Temp())
-    results = handler.handle([{"data" : img} for _ in range(50)], Temp())
-     
-    #exit(0)
-    # print("Time for init", time.time() - tic)
-    # for _ in range(1):
-    #     tic = time.time()
-    #     results = handler.handle([{"data" : img} for _ in range(1)], Temp())
-    #     toc = time.time()
-
-    #     print("Handling Time", toc  - tic)
-    for res in results[0]["triangles"]:
-        import matplotlib.pyplot as plt
-        import mmcv
+    pass
          
-        
-
-
-        plt.imshow(cvimg)
-        
-        xs, ys = [], []
-        
-        for vert in res["vertices"]:
-            x_ = vert["x"]
-            y_ = vert["y"]
-            xs.append(x_)
-            ys.append(y_)
-        print(res)
-        plt.scatter(xs,ys)
-    plt.savefig("./deleteme/giff.png")
 
     
