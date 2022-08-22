@@ -12,6 +12,7 @@ import cv2
 import torch
 from ts.torch_handler.base_handler import BaseHandler
 from ilock import ILock
+import warnings
 
 from methods.constants import (
     CUDA_ENABLED,
@@ -69,7 +70,10 @@ class TraingleHandler(BaseHandler):
                 image = base64.b64decode(image)
 
             img = mmcv.imfrombytes(image)
+            if img.shape != (640, 640, 3):
+                warnings.warn(f"img.shape isnt (640,640,3)!={img.shape} undefined behaviour and wrong results can be returned")
             img = img[:, :, ::-1] # bgr --> rgb 
+
             img = img.transpose((2, 0, 1))  # h, w, c --> c, h, w
             images.append(img)
         
@@ -220,38 +224,39 @@ if __name__ == '__main__':
     print("tmp", Temp())
     
     img = open("./predictors/triangle/img.png","rb").read()
-
+    img = open("../apex_apex1 (10).png", "rb").read()
+    cvimg = mmcv.imfrombytes(img)
+    print(cvimg.shape)
     tic = time.time()
     handler = TraingleHandler().initialize(Temp())
     results = handler.handle([{"data" : img} for _ in range(50)], Temp())
      
     #exit(0)
-    print("Time for init", time.time() - tic)
-    for _ in range(10):
-        tic = time.time()
-        results = handler.handle([{"data" : img} for _ in range(50)], Temp())
-        toc = time.time()
-        print("Handling Time", toc  - tic)
-    # for res in results:
-    #     import matplotlib.pyplot as plt
-    #     import mmcv
-    #     img = open("./predictors/triangle/img.png","rb").read()
+    # print("Time for init", time.time() - tic)
+    # for _ in range(1):
+    #     tic = time.time()
+    #     results = handler.handle([{"data" : img} for _ in range(1)], Temp())
+    #     toc = time.time()
 
-    #     img = mmcv.imfrombytes(img)
-    #     img = cv2.resize(img, (640,640))
-
-
-    #     plt.imshow(img)
+    #     print("Handling Time", toc  - tic)
+    for res in results[0]["triangles"]:
+        import matplotlib.pyplot as plt
+        import mmcv
+         
         
-    #     xs, ys = [], []
+
+
+        plt.imshow(cvimg)
         
-    #     for vert in res["triangle_vertices"]:
-    #         x_ = vert["x"]
-    #         y_ = vert["y"]
-    #         xs.append(x_)
-    #         ys.append(y_)
-    #     print(res)
-    #     plt.scatter(xs,ys)
-    # plt.savefig("./deleteme/giff.png")
+        xs, ys = [], []
+        
+        for vert in res["vertices"]:
+            x_ = vert["x"]
+            y_ = vert["y"]
+            xs.append(x_)
+            ys.append(y_)
+        print(res)
+        plt.scatter(xs,ys)
+    plt.savefig("./deleteme/giff.png")
 
     
