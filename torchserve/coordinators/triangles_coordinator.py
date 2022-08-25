@@ -22,6 +22,7 @@ from methods.constants import (
     VOD_TRIANGLE_PATH,
     VOD_TRIANGLE_BATCHES
 )
+from methods.loggers import LoggerByKey
 from predictors.triangle.infer_standalone import infer, load_model
 from predictors.vod_triangles.src.batch_inference import (
     infer_batch as vod_triangle_inference,
@@ -52,6 +53,7 @@ class TriangleHandler(BaseHandler):
         self.map_location = MAP_LOCATION
         self.device = MAP_LOCATION
         # assert self.device == "cuda", "GPU ISNT RECOGNIZED"
+        self.logger = LoggerByKey()
         print("DEVICE", self.device)
         self.triangle_model = load_model(TRIANGLE_MODEL_PATH, map_location=self.device)
         print("loaded yolo")
@@ -102,7 +104,7 @@ class TriangleHandler(BaseHandler):
         # print(f"BatchSize.Batches:{len(data)}")        
         idx = str(uuid.uuid4())
         self.context.metrics.add_time(
-            'InternalInferenceTriangleTimeForBatch', 
+            'YoloInferenceTriangleTimeForBatch', 
             (time.time() - tic) * 1000, 
             idx, 'ms'
         )
@@ -124,7 +126,7 @@ class TriangleHandler(BaseHandler):
                 "img_index" : img_index,
                 "triangles" : []
             }  # has to be int because of sorting]
-
+        triangles_cnt_ = 0
         for ind, (triangles, translators) in enumerate(fetch_triangles_translators_batches(
                 yolo_output=triangles_bboxes, 
                 imgs=imgs,
@@ -133,6 +135,7 @@ class TriangleHandler(BaseHandler):
             )):
             
             vertices = vod_triangle_inference(triangles, *self.vod_triangle_models, device=self.device)
+            triangles_cnt_ += len(triangles)
 
             for translator, triangle_vertices in zip(translators, vertices):
                 tr_vert = triangle_vertices.tolist()
@@ -151,13 +154,14 @@ class TriangleHandler(BaseHandler):
                 )
         results = list((results.items()))
         results.sort(key=lambda a: a[0])
-        print(f"TrianglesBatchSize.Batches:{len(triangles_bboxes)}")        
+
         idx = str(uuid.uuid4())
         self.context.metrics.add_time(
             'TrianglesInternalInferenceTimeForBatch', 
             (time.time() - tic) * 1000, 
             idx, 'ms'
         )
+        self.context.metrics.add_metric('Stage2TotalTrianglesNumber', triangles_cnt_, idx, 'Triangles')
 
         return list(map(lambda x: x[1], results))
 
@@ -206,7 +210,7 @@ class TriangleHandler(BaseHandler):
             else:
                 vod_vertices = self.explain_handle(data_preprocess, data)
             
-        metrics.add_time('InferenceTimeForBatch', (time.time() - tic) * 1000, idx, 'ms')
+        metrics.add_time('InferenceTotalTimeForBatch', (time.time() - tic) * 1000, idx, 'ms')
 
         stop_time = time.time()
         metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), idx, 'ms')
@@ -218,11 +222,11 @@ if __name__ == '__main__':
     import os
     class Metrics:
             def add_time(self, *args, **kwargs):
-                # print(str(args))
-                pass
+                print(str(args))
+                
             def add_metric(self, *args, **kwargs):
-                # print(str(args))
-                pass
+                print(str(args))
+                
 
     class Temp:
 
@@ -236,46 +240,46 @@ if __name__ == '__main__':
             return False
     print("tmp", Temp())
 
-    fname = "./predictors/triangle/138.png"
+    fname = "../images/fname_810.png"
     img = cv2.cvtColor(cv2.imread(fname), cv2.COLOR_BGR2RGB)
     img = cv2.resize(img, (640, 640))
     img_bytes = img.tobytes()
 
     tic = time.time()
     handler = TriangleHandler().initialize(Temp())
-    results = handler.handle([{"data" : img_bytes} for _ in range(10)], Temp())
+    
 
     #exit(0)
     print("Time for init", time.time() - tic)
     for _ in range(5):
         tic = time.time()
-        results = handler.handle([{"data" : img_bytes} for _ in range(10)], Temp())
+        results = handler.handle([{"data" : img_bytes} for _ in range(30)], Temp())
         toc = time.time()
         print("Handling Time", toc  - tic)
-        print(f"first results: {results[0]}")
+        #print(f"first results: {results[0]}")
 
-    for res in results[0]["triangles"]:
-        import matplotlib.pyplot as plt
+    # for res in results[0]["triangles"]:
+    #     import matplotlib.pyplot as plt
 
-        xs, ys = [], []
-        for vert in res["bbox"]:
-            x_ = vert["x"]
-            y_ = vert["y"]
-            xs.append(x_)
-            ys.append(y_)
+    #     xs, ys = [], []
+    #     for vert in res["bbox"]:
+    #         x_ = vert["x"]
+    #         y_ = vert["y"]
+    #         xs.append(x_)
+    #         ys.append(y_)
 
-        cv2.rectangle(img, [xs[0], ys[0]], [xs[1], ys[1]], (0, 255, 0), thickness=2)
-        plt.imshow(img)
-        xs, ys = [], []
+    #     cv2.rectangle(img, [xs[0], ys[0]], [xs[1], ys[1]], (0, 255, 0), thickness=2)
+    #     plt.imshow(img)
+    #     xs, ys = [], []
 
-        for vert in res["vertices"]:
-            x_ = vert["x"]
-            y_ = vert["y"]
-            xs.append(x_)
-            ys.append(y_)
-        print(res)
-        plt.scatter(xs,ys)
-    dirname = "deleteme"
-    if not os.path.isdir(dirname):
-        os.mkdir(dirname)
-    plt.savefig(f"./{dirname}/giff.png")
+    #     for vert in res["vertices"]:
+    #         x_ = vert["x"]
+    #         y_ = vert["y"]
+    #         xs.append(x_)
+    #         ys.append(y_)
+    #     print(res)
+    #     plt.scatter(xs,ys)
+    # dirname = "deleteme"
+    # if not os.path.isdir(dirname):
+    #     os.mkdir(dirname)
+    # plt.savefig(f"./{dirname}/giff.png")
