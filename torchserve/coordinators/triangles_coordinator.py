@@ -57,11 +57,10 @@ class TriangleHandler(BaseHandler):
         print("loaded yolo")
         self.vod_triangle_models = vod_triangle_fetch_model(ckpt=VOD_TRIANGLE_PATH, device=MAP_LOCATION)
 
-
         # warm up triangle model
         if self.device != 'cpu':
             self.triangle_model(torch.zeros(1, 3, 640, 640).to(self.device).type_as(next(self.triangle_model.parameters())))
-         print("loaded vod_triangles")
+        print("loaded vod_triangles")
         return self
 
     def preprocess(self, data):
