@@ -12,10 +12,8 @@ vod_triangles_path = os.path.abspath("./predictors/vod_triangles/src")
 print(sys.path)
 sys.path.append(vod_triangles_path)
 try:
-    from .models import SimplePatchCornerModule
     from .models.triangle_cornermap_segment import TrianglePatchSegment
 except ImportError:
-    from models import SimplePatchCornerModule
     from models.triangle_cornermap_segment import TrianglePatchSegment
 import kornia as kn
 
