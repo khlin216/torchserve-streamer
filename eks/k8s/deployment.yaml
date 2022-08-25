@@ -47,10 +47,10 @@ spec:
             value: "xids"
           resources:
             requests:
-              ephemeral-storage: "2Gi"
+              ephemeral-storage: "4Gi"
             limits:
               nvidia.com/gpu: 1
-              ephemeral-storage: "4Gi"
+              ephemeral-storage: "8Gi"
 
       restartPolicy: Always
       affinity:

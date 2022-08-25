@@ -13,6 +13,6 @@ assert CUDA_ENABLED == False or MAP_LOCATION == 'cuda', f"GPU IS REQUIRED ? {MAP
 
 ### triangle model constants
 
-TRIANGLE_MODEL_PATH = os.environ.get("TRIANGLE_MODEL_PATH", "model-data/last.pt")
+TRIANGLE_MODEL_PATH = os.environ.get("TRIANGLE_MODEL_PATH", "model-data/yolo.pt")
 VOD_TRIANGLE_PATH = os.environ.get("VOD_TRIANGLE_PATH", "model-data/vod_triangle.ckpt")
-VOD_TRIANGLE_BATCHES = int(os.environ.get("VOD_TRIANGLE_BATCHES", "100"))
+VOD_TRIANGLE_BATCHES = int(os.environ.get("VOD_TRIANGLE_BATCHES", "1"))
