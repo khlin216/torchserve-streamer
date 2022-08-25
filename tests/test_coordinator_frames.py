@@ -72,10 +72,13 @@ if __name__ == "__main__":
             print(res)
             draw.rectangle((xs[0], ys[0], xs[1], ys[1]), outline=color, width=2)
             draw.text((xs[0]+10, ys[0]+10), f"Conf={round(res['yolo_confidence'],2)}", fill="blue")
-            xs, ys = [], []
-            for vert in res["vertices"]:
-                x, y = vert["x"], vert["y"]
-                draw.ellipse((x-3, y-3, x+3, y+3), "green", width=5)
+
+            for triangle_vert in res["vertices"]:
+                x_ = vert["x"]
+                y_ = vert["y"]
+                xs.append(x_)
+                ys.append(y_)
+            draw.polygon(list(zip(xs, ys)), fill="red")
 
         os.makedirs("./deleteme/frames/",exist_ok=True)
         pilim.save(f"./deleteme/{file}")
