@@ -132,8 +132,17 @@ class TriangleHandler(BaseHandler):
                 n_batch=VOD_TRIANGLE_BATCHES,
                 device=self.device
             )):
-            
+r
+
+            tic_justinf = time.time()
             vertices = vod_triangle_inference(triangles, self.vod_triangle_model, self.vod_triangle_normalize, device=self.device)
+            idx = str(uuid.uuid4())
+            self.context.metrics.add_time(
+                'TrianglesInternalInferenceTimeForBatch',
+                (time.time() - tic_justinf) * 1000,
+                idx, 'ms'
+            )
+
 
             for translator, triangle_vertices in zip(translators, vertices):
                 tr_vert = triangle_vertices.tolist()
@@ -155,7 +164,7 @@ class TriangleHandler(BaseHandler):
 
         idx = str(uuid.uuid4())
         self.context.metrics.add_time(
-            'TrianglesInternalInferenceTimeForBatch', 
+            'TrianglesInternalTotalTimeForBatch',
             (time.time() - tic) * 1000, 
             idx, 'ms'
         )
