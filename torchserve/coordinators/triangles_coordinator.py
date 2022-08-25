@@ -53,7 +53,7 @@ class TriangleHandler(BaseHandler):
         # assert self.device == "cuda", "GPU ISNT RECOGNIZED"
         print("DEVICE", self.device)
         self.triangle_model = load_model(TRIANGLE_MODEL_PATH, map_location=self.device)
-        self.vod_triangle_models = vod_triangle_fetch_model(ckpt=VOD_TRIANGLE_PATH, device=MAP_LOCATION)
+        self.vod_triangle_model, self.vod_triangle_normalize = vod_triangle_fetch_model(ckpt=VOD_TRIANGLE_PATH, device=MAP_LOCATION)
 
         # warm up triangle model
         if self.device != 'cpu':
@@ -119,8 +119,8 @@ class TriangleHandler(BaseHandler):
         results = defaultdict(dict)
         for img_index in range(len(imgs)):
             results[img_index] = {
-                "img_index" : img_index,
-                "triangles" : []
+                "img_index": img_index,
+                "triangles": []
             }  # has to be int because of sorting]
 
         for ind, (triangles, translators) in enumerate(fetch_triangles_translators_batches(
@@ -130,7 +130,7 @@ class TriangleHandler(BaseHandler):
                 device=self.device
             )):
             
-            vertices = vod_triangle_inference(triangles, *self.vod_triangle_models, device=self.device)
+            vertices = vod_triangle_inference(triangles, self.vod_triangle_model, self.vod_triangle_normalize, device=self.device)
 
             for translator, triangle_vertices in zip(translators, vertices):
                 tr_vert = triangle_vertices.tolist()

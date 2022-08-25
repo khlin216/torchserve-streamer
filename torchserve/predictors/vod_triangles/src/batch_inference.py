@@ -12,28 +12,34 @@ vod_triangles_path = os.path.abspath("./predictors/vod_triangles/src")
 print(sys.path)
 sys.path.append(vod_triangles_path)
 try:
-    from .models import SimplePatchCornerModule, NonMaxSuppression
+    from .models import SimplePatchCornerModule
+    from .models.triangle_cornermap_segment import TrianglePatchSegment
 except ImportError:
-    from models import SimplePatchCornerModule, NonMaxSuppression
+    from models import SimplePatchCornerModule
+    from models.triangle_cornermap_segment import TrianglePatchSegment
 import kornia as kn
-
 
 
 sys.path.remove(vod_triangles_path)
 
 
-def fetch_model(ckpt : str, device : str):
-    
-    model = SimplePatchCornerModule.load_from_checkpoint(ckpt)
+def fetch_model(ckpt: str, device: str):
+    ckpt = torch.load(ckpt, map_location=device)
+    model = TrianglePatchSegment(
+        backbone=ckpt['backbone'],
+        set_stride_to1=ckpt['set_stride_to1'],
+        outlevel=ckpt['outlevel'],
+    )
+    model.load_state_dict(ckpt['state_dict'])
+
     model.eval()
     model = model.to(device)
     
-    nms = NonMaxSuppression()
-    denormalize = kn.enhance.Denormalize(mean=torch.tensor([0.485, 0.456, 0.406]), 
-                                        std=torch.tensor([0.229, 0.224, 0.225]))
-    normalize = kn.enhance.Normalize(mean=torch.tensor([0.485, 0.456, 0.406]), 
-                                        std=torch.tensor([0.229, 0.224, 0.225])) 
-    return model, nms, normalize, denormalize
+    normalize = kn.enhance.Normalize(
+        mean=torch.tensor([0.485, 0.456, 0.406]),
+        std =torch.tensor([0.229, 0.224, 0.225])
+    )
+    return model, normalize
 
 
 def get_point_vectorized(corner_map_sigmoid):
@@ -57,23 +63,22 @@ def get_point_vectorized(corner_map_sigmoid):
     return points
 
 
-def infer_batch(imgs: np.ndarray, model, nms, normalize, denormalize, device):
+def infer_batch(imgs: np.ndarray, model, normalize, device):
     imgs = imgs.permute(0, 3, 1, 2)
     imgs = normalize(imgs/255.)
     with torch.no_grad():
         imgs = imgs.to(device)
-        seg_mask_logits, corner_map_logits, coords = model(imgs)
-        coords = coords.reshape(-1, 3, 2)
-        coords = coords * 64
+        _, _, coords = model(imgs)
+        coords = coords.reshape(-1, 3, 2) * 64
         return coords
 
 
-def test_batch(batch_sz, model, nms, normalize, denormalize, device):
+def test_batch(batch_sz, model, normalize, denormalize, device):
     image = open("../img.png","rb").read()
     imgs = mmcv.imfrombytes(image)[:, :, ::-1] 
     imgs = torch.from_numpy(np.array([imgs] * batch_sz)).to(device)
     tic = time.time()
-    coords = infer_batch(imgs, model, nms, normalize, denormalize, device)
+    coords = infer_batch(imgs, model, normalize, denormalize, device)
     print(coords)
     exit(0)
     toc = time.time()
@@ -81,14 +86,14 @@ def test_batch(batch_sz, model, nms, normalize, denormalize, device):
     return toc - tic
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     print("sup")
     # run python batch_inference from here
     
     import time
     a = time.time()
     tp = fetch_model("../../../model-data/vod_triangle.ckpt", device="cuda")
-    stats= ""
+    stats = ""
     for batch_sz in range(10, 100, 20):
         times = []
         for _ in range(5):
