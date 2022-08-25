@@ -22,7 +22,7 @@ from methods.constants import (
     VOD_TRIANGLE_PATH,
     VOD_TRIANGLE_BATCHES
 )
-from methods.loggers import LoggerByKey
+
 from predictors.triangle.infer_standalone import infer, load_model
 from predictors.vod_triangles.src.batch_inference import (
     infer_batch as vod_triangle_inference,
@@ -53,7 +53,6 @@ class TriangleHandler(BaseHandler):
         self.map_location = MAP_LOCATION
         self.device = MAP_LOCATION
         # assert self.device == "cuda", "GPU ISNT RECOGNIZED"
-        self.logger = LoggerByKey()
         print("DEVICE", self.device)
         self.triangle_model = load_model(TRIANGLE_MODEL_PATH, map_location=self.device)
         print("loaded yolo")
