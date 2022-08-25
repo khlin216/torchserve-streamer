@@ -5,6 +5,7 @@ import sys
 import os
 import mmcv
 import torch
+from torchvision import transforms
 
 
 vod_triangles_path = os.path.abspath("./predictors/vod_triangles/src")
@@ -35,17 +36,35 @@ def fetch_model(ckpt : str, device : str):
     return model, nms, normalize, denormalize
 
 
-def infer_batch(imgs: np.ndarray, model, nms, normalize, denormalize, device):
+def get_point_vectorized(corner_map_sigmoid):
+    assert corner_map_sigmoid.ndim == 4
+    min_dist = 30
+    n_batch = corner_map_sigmoid.shape[0]
+    corner_map_sigmoid = transforms.functional.gaussian_blur(corner_map_sigmoid, kernel_size=9)
+    x_flat = torch.flatten(corner_map_sigmoid, 1)
+    v, i = torch.sort(x_flat, dim=1, descending=True)
+    pxy_bl2 = torch.dstack([torch.div(i, 64, rounding_mode="floor"), i % 64]).float()
+    points = torch.ones(n_batch, 3, 2, device="cuda") * 1000
+    points[:, 0] = pxy_bl2[0, 0]
+    dist_bl = torch.cdist(pxy_bl2, points).min(dim=2).values
 
+    i_found = 1
+    range_batch = torch.arange(n_batch, device="cuda")
+    points[range(n_batch), i_found] = pxy_bl2[list(range(n_batch)), (dist_bl > min_dist).int().argmax(dim=1).tolist()]
+    dist_bl = torch.cdist(pxy_bl2, points).min(dim=2).values
+    i_found = 2
+    points[range(n_batch), i_found] = pxy_bl2[list(range(n_batch)), (dist_bl > min_dist).int().argmax(dim=1).tolist()]
+    return points
+
+
+def infer_batch(imgs: np.ndarray, model, nms, normalize, denormalize, device):
     imgs = imgs.permute(0, 3, 1, 2)
-    imgs = normalize(imgs)
+    imgs = normalize(imgs/255.)
     with torch.no_grad():
         imgs = imgs.to(device)
         seg_mask_logits, corner_map_logits, coords = model(imgs)
-
-        # return the triangle coordinates
-        nms_seg, points = nms(corner_map_logits)
-        coords = points[:, :3].cpu().numpy()
+        coords = coords.reshape(-1, 3, 2)
+        coords = coords * 64
         return coords
 
 
@@ -60,8 +79,6 @@ def test_batch(batch_sz, model, nms, normalize, denormalize, device):
     toc = time.time()
     #print("Batchsz", batch_sz, "time", toc - tic)
     return toc - tic
-
-
 
 
 if __name__=="__main__":

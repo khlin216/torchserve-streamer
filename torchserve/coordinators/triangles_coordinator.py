@@ -29,8 +29,10 @@ from predictors.vod_triangles.src.batch_inference import (
 from methods.misc import (
     fetch_triangles_translators_batches,
     convert_coords_list2dicts,
-    convert_yolo_output2dict
+    convert_yolo_output2dict,
+    broaden_yolo_output,
 )
+
 
 class TriangleHandler(BaseHandler):
     
@@ -52,6 +54,11 @@ class TriangleHandler(BaseHandler):
         print("DEVICE", self.device)
         self.triangle_model = load_model(TRIANGLE_MODEL_PATH, map_location=self.device)
         self.vod_triangle_models = vod_triangle_fetch_model(ckpt=VOD_TRIANGLE_PATH, device=MAP_LOCATION)
+
+        # warm up triangle model
+        if self.device != 'cpu':
+            self.triangle_model(torch.zeros(1, 3, 640, 640).to(self.device).type_as(next(self.triangle_model.parameters())))
+
         return self
 
     def preprocess(self, data):
@@ -75,8 +82,10 @@ class TriangleHandler(BaseHandler):
           
             img = img.transpose((2, 0, 1))  # h, w, c --> c, h, w
             images.append(img)
-        
-        return torch.from_numpy(np.array(images))
+
+        images = np.ascontiguousarray(np.array(images))
+        images = torch.from_numpy(images)
+        return images
 
     def inference_triangles(self, data, *args, **kwargs):
         """
@@ -98,7 +107,6 @@ class TriangleHandler(BaseHandler):
 
         return results
 
-
     def inference_vertices(self, imgs, triangles_bboxes, *args, **kwargs):
         """
         Args:
@@ -114,7 +122,6 @@ class TriangleHandler(BaseHandler):
                 "img_index" : img_index,
                 "triangles" : []
             }  # has to be int because of sorting]
-
 
         for ind, (triangles, translators) in enumerate(fetch_triangles_translators_batches(
                 yolo_output=triangles_bboxes, 
@@ -151,8 +158,7 @@ class TriangleHandler(BaseHandler):
         )
 
         return list(map(lambda x: x[1], results))
-     
-        
+
     def handle(self, data, context):
         """Entry point for default handler. It takes the data from the input request and returns
            the predicted outcome for the input.
@@ -177,9 +183,14 @@ class TriangleHandler(BaseHandler):
         if CUDA_ENABLED:
             with ILock("torchserve-mutex"):
                 data_preprocess= data_preprocess.to(self.device)
-                
                 if not self._is_explain():
                     yolo_output = self.inference_triangles(data_preprocess)
+                    broaden_yolo_output(yolo_output, 0.15)  # force yolo to get mode context to help stage2
+                    # todo: filter yolo output for undesired bboxes:
+                    #   wrong h/w ratio
+                    #   too big
+                    #   in "dead zone"
+                    #   confidence too low
                     vod_vertices = self.inference_vertices(data_preprocess, triangles_bboxes=yolo_output)
                 else:
                     vod_vertices = self.explain_handle(data_preprocess, data)
@@ -188,6 +199,7 @@ class TriangleHandler(BaseHandler):
             data_preprocess= data_preprocess.to(self.device)
             if not self._is_explain():
                 yolo_output = self.inference_triangles(data_preprocess)
+                broaden_yolo_output(yolo_output, 0.15)  # force yolo to get mode context to help stage2
                 vod_vertices = self.inference_vertices(data_preprocess, triangles_bboxes=yolo_output)
             else:
                 vod_vertices = self.explain_handle(data_preprocess, data)
@@ -201,6 +213,7 @@ class TriangleHandler(BaseHandler):
 
 
 if __name__ == '__main__':
+    import os
     class Metrics:
             def add_time(self, *args, **kwargs):
                 # print(str(args))
@@ -208,11 +221,11 @@ if __name__ == '__main__':
             def add_metric(self, *args, **kwargs):
                 # print(str(args))
                 pass
-            
+
     class Temp:
-        
+
         def __init__(self, *args, **kwargs) -> None:
-            self.system_properties = {"gpu_id": "0"}    
+            self.system_properties = {"gpu_id": "0"}
             self.metrics = Metrics()
         def __str__(self):
             return ("here")
@@ -221,42 +234,46 @@ if __name__ == '__main__':
             return False
     print("tmp", Temp())
 
-    fname = "./predictors/triangle/img.png"
+    fname = "./predictors/triangle/138.png"
     img = cv2.cvtColor(cv2.imread(fname), cv2.COLOR_BGR2RGB)
-    img = cv2.resize(img, (640, 640)).tobytes()
+    img = cv2.resize(img, (640, 640))
+    img_bytes = img.tobytes()
 
     tic = time.time()
     handler = TriangleHandler().initialize(Temp())
-    results = handler.handle([{"data" : img} for _ in range(50)], Temp())
-     
+    results = handler.handle([{"data" : img_bytes} for _ in range(10)], Temp())
+
     #exit(0)
     print("Time for init", time.time() - tic)
-    for _ in range(10):
+    for _ in range(5):
         tic = time.time()
-        results = handler.handle([{"data" : img} for _ in range(50)], Temp())
+        results = handler.handle([{"data" : img_bytes} for _ in range(10)], Temp())
         toc = time.time()
         print("Handling Time", toc  - tic)
         print(f"first results: {results[0]}")
-    # for res in results:
-    #     import matplotlib.pyplot as plt
-    #     import mmcv
-    #     img = open("./predictors/triangle/img.png","rb").read()
 
-    #     img = mmcv.imfrombytes(img)
-    #     img = cv2.resize(img, (640,640))
+    for res in results[0]["triangles"]:
+        import matplotlib.pyplot as plt
 
+        xs, ys = [], []
+        for vert in res["bbox"]:
+            x_ = vert["x"]
+            y_ = vert["y"]
+            xs.append(x_)
+            ys.append(y_)
 
-    #     plt.imshow(img)
-        
-    #     xs, ys = [], []
-        
-    #     for vert in res["triangle_vertices"]:
-    #         x_ = vert["x"]
-    #         y_ = vert["y"]
-    #         xs.append(x_)
-    #         ys.append(y_)
-    #     print(res)
-    #     plt.scatter(xs,ys)
-    # plt.savefig("./deleteme/giff.png")
+        cv2.rectangle(img, [xs[0], ys[0]], [xs[1], ys[1]], (0, 255, 0), thickness=2)
+        plt.imshow(img)
+        xs, ys = [], []
 
-    
+        for vert in res["vertices"]:
+            x_ = vert["x"]
+            y_ = vert["y"]
+            xs.append(x_)
+            ys.append(y_)
+        print(res)
+        plt.scatter(xs,ys)
+    dirname = "deleteme"
+    if not os.path.isdir(dirname):
+        os.mkdir(dirname)
+    plt.savefig(f"./{dirname}/giff.png")
