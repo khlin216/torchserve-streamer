@@ -19,7 +19,8 @@ sys.path.append(utilspath)
 from corner_matching import OptimalMatching
 from einops import rearrange, repeat, reduce
 from gen_utils import (cv2_warp, show_figures, print_shapes)
-
+from tiny_selfattention_model import SelfAttentionModel
+from losses import BipartiteCornerMatchingLoss
 
 # define a function which returns an image as numpy array from figure
 def get_img_from_fig(fig, dpi=180):
@@ -48,7 +49,7 @@ class ConvMask(nn.Module):
         return x
 
 
-class TrianglePatchSegment(nn.Module):
+class TimmModel(nn.Module):
     def __init__(self, backbone, set_stride_to1=True, outlevel=2):
         super().__init__()
         self.backbone = backbone
@@ -56,7 +57,7 @@ class TrianglePatchSegment(nn.Module):
         # instantiate the backbone
         self.feature_extractor = timm.create_model(self.backbone, pretrained=True, num_classes=0,
                                                    features_only=True, global_pool='', out_indices=(outlevel,))    
-        last_channel_num = self.feature_extractor.feature_info.channels()[-1]
+        self.last_channel_num = self.feature_extractor.feature_info.channels()[-1]
 
         # make stride 1
         if set_stride_to1:
@@ -65,7 +66,27 @@ class TrianglePatchSegment(nn.Module):
                     mod.stride = 1
 
                 if isinstance(mod, nn.MaxPool2d):
-                    self.feature_extractor[name] = nn.Identity()
+                    self.feature_extractor[name] = nn.Identity()        
+
+    def forward(self, x):
+        return self.feature_extractor(x)
+
+
+backbone_models_hash = {
+    'tiny_self_att': SelfAttentionModel,
+}
+
+
+class TrianglePatchSegment(nn.Module):
+    def __init__(self, backbone, set_stride_to1=True, outlevel=2):
+        super().__init__()
+        self.backbone = backbone
+        if backbone in backbone_models_hash:
+            self.backbone_net = backbone_models_hash.get(backbone)()
+        else:
+            self.backbone_net = TimmModel(backbone=backbone, set_stride_to1=set_stride_to1, outlevel=outlevel)
+
+        last_channel_num = self.backbone_net.last_channel_num
 
         # segmentation head
         self.seghead = ConvMask(last_channel_num)
@@ -77,7 +98,7 @@ class TrianglePatchSegment(nn.Module):
         self.coord_predictor = nn.Linear(last_channel_num, 6)
         
     def forward(self, x):
-        feats = self.feature_extractor(x)
+        feats = self.backbone_net(x)
 
         # predict the model outputs
         last_feat = feats[-1]
@@ -99,7 +120,7 @@ class LightningTrianglePatchModule(pl.LightningModule):
                                             outlevel=self.args.outlevel)
         self.seg_bce_loss = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([1.]))
         self.cornermap_bce_loss = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([100.]))
-        self.regress_loss = nn.L1Loss()
+        self.regress_loss = BipartiteCornerMatchingLoss()
         self.normalize = kn.enhance.Normalize(mean=torch.tensor([0.485, 0.456, 0.406]), 
                                                 std=torch.tensor([0.229, 0.224, 0.225]))  
         self.denormalize = kn.enhance.Denormalize(mean=torch.tensor([0.485, 0.456, 0.406]), 
@@ -113,7 +134,6 @@ class LightningTrianglePatchModule(pl.LightningModule):
             params=params, lr=self.args.lr, weight_decay=self.args.wd)
         return opimizer
 
-
     def plot_train_figure(self, imgs, tgt_seg_masks, tgt_corner_maps, tgt_triangle_coords,
                                     seg_mask_logits, corner_map_logits, coords, label='training_progress', step_index=None):
 
@@ -126,11 +146,27 @@ class LightningTrianglePatchModule(pl.LightningModule):
         tgt_seg_masks = tgt_seg_masks.cpu().detach().numpy()
         tgt_corner_maps = tgt_corner_maps.cpu().detach().numpy()
         tgt_triangle_coords = tgt_triangle_coords.cpu().detach().numpy()
+        tgt_triangle_coords = rearrange(tgt_triangle_coords, 'b (n d) -> b n d', n=3)
+        tgt_triangle_coords[:,:,0] = tgt_triangle_coords[:,:,0] * w
+        tgt_triangle_coords[:,:,1] = tgt_triangle_coords[:,:,1] * h
+        tgt_triangle_coords = tgt_triangle_coords.astype(np.int32)
+
         seg_mask_logits = seg_mask_logits.sigmoid().cpu().detach().numpy()
         corner_map_logits = corner_map_logits.sigmoid().cpu().detach().numpy()
         coords = coords.cpu().detach().numpy()
+        coords = rearrange(coords, 'b (n d) -> b n d', n=3)
+        coords[:,:,0] = coords[:,:,0] * w
+        coords[:,:,1] = coords[:,:,1] * h
+        coords = coords.astype(np.int32)
 
-        fig, axes = plt.subplots(nrows=4, ncols=5, figsize=(12, 8))
+        def plot_points(points):
+            img = np.zeros((h, w))
+            cv2.circle(img, points[0], radius=1, color=(1,), thickness=-1)
+            cv2.circle(img, points[1], radius=1, color=(1,), thickness=-1)
+            cv2.circle(img, points[2], radius=1, color=(1,), thickness=-1)
+            return img
+
+        fig, axes = plt.subplots(nrows=4, ncols=7, figsize=(12, 8))
         count = 0
         for i, (img, tgtseg, tgtcorner, tgtcoord, predseg, predcorner, predcoord) in enumerate(zip(imgs, tgt_seg_masks, tgt_corner_maps, tgt_triangle_coords,
                                                                                     seg_mask_logits, corner_map_logits, coords)):
@@ -142,16 +178,22 @@ class LightningTrianglePatchModule(pl.LightningModule):
             axes[i,0].set_title("RGB")
 
             axes[i,1].imshow(tgtseg)
-            axes[i,1].set_title("tgt_seg")            
+            axes[i,1].set_title("tgt_seg")
 
             axes[i,2].imshow(tgtcorner)
-            axes[i,2].set_title("tgt_corner")   
+            axes[i,2].set_title("tgt_corner")
 
-            axes[i,3].imshow(predseg)
-            axes[i,3].set_title("pred_seg")            
+            axes[i,3].imshow(plot_points(tgtcoord))
+            axes[i,3].set_title("tgt_coords")
 
-            axes[i,4].imshow(predcorner)
-            axes[i,4].set_title("pred_corner")                        
+            axes[i,4].imshow(predseg)
+            axes[i,4].set_title("pred_seg")
+
+            axes[i,5].imshow(predcorner)
+            axes[i,5].set_title("pred_corner")
+
+            axes[i,6].imshow(plot_points(predcoord))
+            axes[i,6].set_title("pred_coords")
 
             count += 1
             if count >= 4: break
@@ -179,10 +221,10 @@ class LightningTrianglePatchModule(pl.LightningModule):
 
         # normalize data
         bsb, c, h, w = imgs.shape
-        tgt_triangle_coords[:, 0] /= w
-        tgt_triangle_coords[:, 1] /= h
-        tgt_rects[:, 0] /= w
-        tgt_rects[:, 1] /= h
+        tgt_triangle_coords[:, :, 0] /= w
+        tgt_triangle_coords[:, :, 1] /= h
+        tgt_rects[:, :, 0] /= w
+        tgt_rects[:, :, 1] /= h
 
         normalized_imgs = self.normalize(imgs / 255.)
         seg_mask_logits, corner_map_logits, coords = self.forward(normalized_imgs)
@@ -194,8 +236,8 @@ class LightningTrianglePatchModule(pl.LightningModule):
         loss = seg_loss + cornermap_loss + regression_loss
 
         # prepare figure to add to tensorboard
-        self.plot_train_figure(imgs, tgt_seg_masks, tgt_corner_maps, tgt_triangle_coords,
-                                    seg_mask_logits, corner_map_logits, coords, step_index=self.train_step_count)
+        self.plot_train_figure(imgs, tgt_seg_masks, tgt_corner_maps, tgt_triangle_coords.view(b, -1),
+                                    seg_mask_logits, corner_map_logits, coords.view(b, -1), step_index=self.train_step_count)
         self.train_step_count += 1
 
         # log all the losses
@@ -243,10 +285,10 @@ class SimplePatchCornerModule(LightningTrianglePatchModule):
 
         # normalize data
         bsb, c, h, w = imgs.shape
-        tgt_triangle_coords[:, 0] /= w
-        tgt_triangle_coords[:, 1] /= h
-        tgt_rects[:, 0] /= w
-        tgt_rects[:, 1] /= h
+        tgt_triangle_coords[:, :, 0] /= w
+        tgt_triangle_coords[:, :, 1] /= h
+        tgt_rects[:, :, 0] /= w
+        tgt_rects[:, :, 1] /= h
 
         normalized_imgs = self.normalize(imgs / 255.)
         seg_mask_logits, corner_map_logits, coords = self.forward(normalized_imgs)
@@ -258,17 +300,17 @@ class SimplePatchCornerModule(LightningTrianglePatchModule):
         loss = seg_loss + cornermap_loss + regression_loss
 
         # prepare figure to add to tensorboard
-        self.plot_train_figure(imgs, tgt_seg_masks, tgt_corner_maps, tgt_triangle_coords,
-                                    seg_mask_logits, corner_map_logits, coords, label='validation_progress', step_index=self.val_step_count)
+        self.plot_train_figure(imgs, tgt_seg_masks, tgt_corner_maps, tgt_triangle_coords.view(b, -1),
+                                    seg_mask_logits, corner_map_logits, coords.view(b, -1), label='validation_progress', step_index=self.val_step_count)
 
         # log all the losses
-        self.logger.experiment.add_scalar('val_seg_loss', seg_loss, self.val_step_count)
-        self.logger.experiment.add_scalar('val_cornermap_loss', cornermap_loss, self.val_step_count)
-        self.logger.experiment.add_scalar('val_regression_loss', regression_loss, self.val_step_count)
-        self.logger.experiment.add_scalar('val_total_loss', loss, self.val_step_count)
+        self.log('val_seg_loss', seg_loss)
+        self.log('val_cornermap_loss', cornermap_loss)
+        self.log('val_regression_loss', regression_loss)
+        self.log('val_total_loss', loss)
         self.val_step_count += 1
-
         return loss
+
 
 if __name__ == "__main__":
     m = TrianglePatchSegment(backbone='tv_resnet34').cuda()

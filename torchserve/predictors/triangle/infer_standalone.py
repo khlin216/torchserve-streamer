@@ -11,14 +11,14 @@ from utils.general import check_img_size
 sys.path.remove(yolodir)
 
 
-
 def load_model(weights, map_location):
     
     model = attempt_load(weights, map_location=map_location)
     
     return model.to(map_location)
 
-def infer(imgs: np.ndarray, weights=None, model=None, device="cpu", imgsz=640, half: bool = False,
+
+def infer(imgs: np.ndarray, model, device="cpu", imgsz=640, half: bool = False,
           conf_thres=0.25, iou_thres=0.45, classes=None):
     """
     Usage:
@@ -39,18 +39,8 @@ def infer(imgs: np.ndarray, weights=None, model=None, device="cpu", imgsz=640, h
             [6.81570e+00, 2.99020e+02, 1.59248e+02, 3.76828e+02, 8.69054e-01, 0.00000e+00],
             [1.81473e+02, 4.63728e+02, 2.98181e+02, 6.00940e+02, 8.66575e-01, 0.00000e+00]])]
 """
-    
-    # load assets -- this should probably go into initialize()
-      # load FP32 model
-    if weights is not None and model is not None:
-        raise("You should pass either weights or model")
-    if weights is not None:
-        model = load_model(weights, map_location=device)
-
     stride = int(model.stride.max())  # model stride
     imgsz = check_img_size(imgsz, s=stride)  # check img_size
-
-    # do inference -- this should probably go into inference()
     if isinstance(imgs, np.ndarray):
         imgs = torch.from_numpy(imgs)
         imgs = imgs.to(device)
@@ -62,8 +52,7 @@ def infer(imgs: np.ndarray, weights=None, model=None, device="cpu", imgsz=640, h
     with torch.no_grad():
         pred = model(imgs, augment=False)[0]
         pred = non_max_suppression(pred, conf_thres, iou_thres, classes=classes)
-        
-        pred = [p.detach().cpu().numpy().astype(np.float32).tolist()  for p in pred]
+        pred = [p.detach().cpu().numpy().astype(np.float32).tolist() for p in pred]
         
         return pred
 
