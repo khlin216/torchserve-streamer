@@ -121,4 +121,16 @@ def convert_yolo_output2dict(yolo_single_res : list):
         {"x" : int(x1), "y" : int(y1)}
     ]
     return vert_dicts, c
-    
+
+
+def broaden_yolo_output(yolo_output, bump=0.15):
+    """Increase yolo window by :bump: on each side, as percentage of width and height.
+    """
+    for yolo_output_per_image in yolo_output:
+        for bbox in yolo_output_per_image:
+            w = bbox[2] - bbox[0]
+            h = bbox[3] - bbox[1]
+            bbox[0] = bbox[0] - bump * w
+            bbox[1] = bbox[1] - bump * h
+            bbox[2] = bbox[2] + bump * w
+            bbox[3] = bbox[3] + bump * h
