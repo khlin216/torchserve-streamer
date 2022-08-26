@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: torchserve
 spec:
-  replicas: 10
+  replicas: 1
   selector:
     matchLabels:
       name: torchserve-elb

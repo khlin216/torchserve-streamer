@@ -27,11 +27,18 @@ def mmdet2torchserve(
     """
     mmcv.mkdir_or_exist(output_folder)
     dummy_file = "methods/constants.py"
-    if os.path.isfile("./serve_alldet/all_det.mar"):
-        os.remove("./serve_alldet/all_det.mar")
+    
     with TemporaryDirectory() as tmpdir:
-        shutil.copytree("./", tmpdir, dirs_exist_ok=True)
+        # shutil.copytree("./", tmpdir, dirs_exist_ok=True)
+        for source in os.listdir("./"):
+            if os.path.isdir(os.path.join("./", source)):
+                shutil.copytree(os.path.join("./", source), os.path.join(tmpdir, source))
+            else:
+                shutil.copyfile(os.path.join("./", source), os.path.join(tmpdir, source))
         shutil.move(os.path.join(tmpdir, coordinator), "coordinator.py")
+        if os.path.isdir(os.path.join(tmpdir, "serve_alldet")):
+            shutil.rmtree(os.path.join(tmpdir, "serve_alldet"))
+
         print(tmpdir)
         print(os.listdir(src_root))
         args = Namespace(

@@ -29,7 +29,6 @@ def fetch_model(ckpt: str, device: str):
         outlevel=ckpt['outlevel'],
     )
     model.load_state_dict(ckpt['state_dict'])
-
     model.eval()
     model = model.to(device)
     
