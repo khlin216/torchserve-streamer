@@ -12,10 +12,8 @@ vod_triangles_path = os.path.abspath("./predictors/vod_triangles/src")
 print(sys.path)
 sys.path.append(vod_triangles_path)
 try:
-    from .models import SimplePatchCornerModule
     from .models.triangle_cornermap_segment import TrianglePatchSegment
 except ImportError:
-    from models import SimplePatchCornerModule
     from models.triangle_cornermap_segment import TrianglePatchSegment
 import kornia as kn
 
@@ -31,7 +29,6 @@ def fetch_model(ckpt: str, device: str):
         outlevel=ckpt['outlevel'],
     )
     model.load_state_dict(ckpt['state_dict'])
-
     model.eval()
     model = model.to(device)
     
