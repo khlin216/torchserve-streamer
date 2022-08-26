@@ -127,6 +127,7 @@ resource "aws_iam_role_policy_attachment" "nodegroup-AmazonEC2ContainerRegistryR
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = aws_iam_role.nodegroup.name
 }
+<<<<<<< HEAD
 
 resource "aws_eks_node_group" "nodegroup_gpu" {
   cluster_name    = aws_eks_cluster.eks.name
@@ -200,5 +201,3 @@ resource "aws_eks_node_group" "nodegroup_cpu_master" {
     aws_iam_role_policy_attachment.ssm_attach,
   ]
 }
-
-
