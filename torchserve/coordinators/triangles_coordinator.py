@@ -22,6 +22,7 @@ from methods.constants import (
     VOD_TRIANGLE_PATH,
     VOD_TRIANGLE_BATCHES
 )
+
 from predictors.triangle.infer_standalone import infer, load_model
 from predictors.vod_triangles.src.batch_inference import (
     infer_batch as vod_triangle_inference,
@@ -32,6 +33,7 @@ from methods.misc import (
     convert_coords_list2dicts,
     convert_yolo_output2dict,
     broaden_yolo_output,
+    filter_yolo_output,
 )
 
 
@@ -102,7 +104,7 @@ class TriangleHandler(BaseHandler):
         # print(f"BatchSize.Batches:{len(data)}")        
         idx = str(uuid.uuid4())
         self.context.metrics.add_time(
-            'InternalInferenceTriangleTimeForBatch', 
+            'YoloInferenceTriangleTimeForBatch',
             (time.time() - tic) * 1000, 
             idx, 'ms'
         )
@@ -124,16 +126,17 @@ class TriangleHandler(BaseHandler):
                 "img_index": img_index,
                 "triangles": []
             }  # has to be int because of sorting]
-
+        triangles_cnt_ = 0
         for ind, (triangles, translators) in enumerate(fetch_triangles_translators_batches(
                 yolo_output=triangles_bboxes, 
                 imgs=imgs,
                 n_batch=VOD_TRIANGLE_BATCHES,
                 device=self.device
             )):
-            
-            vertices = vod_triangle_inference(triangles, self.vod_triangle_model, self.vod_triangle_normalize, device=self.device)
 
+            tic_inference = time.time()
+            vertices = vod_triangle_inference(triangles, self.vod_triangle_model, self.vod_triangle_normalize, device=self.device)
+            idx = str(uuid.uuid4())
             for translator, triangle_vertices in zip(translators, vertices):
                 tr_vert = triangle_vertices.tolist()
                 bbox = triangles_bboxes[translator.img_index][translator.triangle_index]
@@ -151,14 +154,13 @@ class TriangleHandler(BaseHandler):
                 )
         results = list((results.items()))
         results.sort(key=lambda a: a[0])
-        print(f"TrianglesBatchSize.Batches:{len(triangles_bboxes)}")        
         idx = str(uuid.uuid4())
         self.context.metrics.add_time(
-            'TrianglesInternalInferenceTimeForBatch', 
+            'TrianglesInternalTotalTimeForBatch',
             (time.time() - tic) * 1000, 
             idx, 'ms'
         )
-
+        self.context.metrics.add_metric('Stage2TotalTrianglesNumber', triangles_cnt_, idx, 'Triangles')
         return list(map(lambda x: x[1], results))
 
     def handle(self, data, context):
@@ -187,12 +189,8 @@ class TriangleHandler(BaseHandler):
                 data_preprocess= data_preprocess.to(self.device)
                 if not self._is_explain():
                     yolo_output = self.inference_triangles(data_preprocess)
+                    filter_yolo_output(yolo_output)
                     broaden_yolo_output(yolo_output, 0.15)  # force yolo to get mode context to help stage2
-                    # todo: filter yolo output for undesired bboxes:
-                    #   wrong h/w ratio
-                    #   too big
-                    #   in "dead zone"
-                    #   confidence too low
                     vod_vertices = self.inference_vertices(data_preprocess, triangles_bboxes=yolo_output)
                 else:
                     vod_vertices = self.explain_handle(data_preprocess, data)
@@ -206,7 +204,7 @@ class TriangleHandler(BaseHandler):
             else:
                 vod_vertices = self.explain_handle(data_preprocess, data)
             
-        metrics.add_time('InferenceTimeForBatch', (time.time() - tic) * 1000, idx, 'ms')
+        metrics.add_time('InferenceTotalTimeForBatch', (time.time() - tic) * 1000, idx, 'ms')
 
         stop_time = time.time()
         metrics.add_time('HandlerTime', round((stop_time - start_time) * 1000, 2), idx, 'ms')
@@ -218,14 +216,12 @@ if __name__ == '__main__':
     import os
     class Metrics:
             def add_time(self, *args, **kwargs):
-                # print(str(args))
-                pass
+                print(str(args))
+
             def add_metric(self, *args, **kwargs):
-                # print(str(args))
-                pass
+                print(str(args))
 
     class Temp:
-
         def __init__(self, *args, **kwargs) -> None:
             self.system_properties = {"gpu_id": "0"}
             self.metrics = Metrics()
@@ -236,23 +232,22 @@ if __name__ == '__main__':
             return False
     print("tmp", Temp())
 
-    fname = "./predictors/triangle/138.png"
+    # fname = "./predictors/triangle/fname_810.png"
+    fname = "./predictors/triangle/Untitled.png"
     img = cv2.cvtColor(cv2.imread(fname), cv2.COLOR_BGR2RGB)
     img = cv2.resize(img, (640, 640))
     img_bytes = img.tobytes()
 
     tic = time.time()
     handler = TriangleHandler().initialize(Temp())
-    results = handler.handle([{"data" : img_bytes} for _ in range(10)], Temp())
-
     #exit(0)
     print("Time for init", time.time() - tic)
-    for _ in range(5):
+    for _ in range(1):
         tic = time.time()
-        results = handler.handle([{"data" : img_bytes} for _ in range(10)], Temp())
+        results = handler.handle([{"data" : img_bytes} for _ in range(1)], Temp())
         toc = time.time()
         print("Handling Time", toc  - tic)
-        print(f"first results: {results[0]}")
+        #print(f"first results: {results[0]}")
 
     for res in results[0]["triangles"]:
         import matplotlib.pyplot as plt
