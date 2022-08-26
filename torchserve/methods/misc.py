@@ -1,6 +1,7 @@
 import torch.nn.functional as F
 import torch
 import warnings
+from methods.constants import W, H
 
 
 class CoordinatesTranslator:
@@ -9,7 +10,6 @@ class CoordinatesTranslator:
         y0 = int(round(y0))
         x1 = int(round(x1)) 
         y1 = int(round(y1))
-        H, W = (640, 640)
         x0 = max(x0, 0)
         y0 = max(y0, 0)
         x1 = min(x1, W)
@@ -27,8 +27,8 @@ class CoordinatesTranslator:
 
     def crop_triangle(self, img):
         img = img.to(self.device)
-        if list(img.shape) != [3, 640, 640]:
-            raise KeyError(f"img shape should be (640, 640), 3 but found {list(img.shape)}")
+        if list(img.shape) != [3, H, W]:
+            raise KeyError(f"img shape should be ({H}, {W}), 3 but found {list(img.shape)}")
         x0, y0, x1, y1 = self.coords
         triangle_ = img[:,y0:y1, x0:x1]  #.permute(1, 2, 0)
         triangle_ = triangle_.reshape(1, *triangle_.shape)
@@ -89,7 +89,6 @@ def fetch_triangles_translators_batches(yolo_output, imgs, n_batch, device):
 
 def convert_coords_list2dicts(coords, translator = None):
     vert_dicts = []
-    
     for x_, y_ in coords:
         if translator is None:
             vert_dicts.append({
@@ -105,7 +104,6 @@ def convert_coords_list2dicts(coords, translator = None):
 
 
 def convert_yolo_output2dict(yolo_single_res : list):
-    
     x0, y0, x1, y1, c, _ = yolo_single_res
     vert_dicts = [
         {"x" : int(x0), "y" : int(y0)},
@@ -125,3 +123,31 @@ def broaden_yolo_output(yolo_output, bump=0.15):
             bbox[1] = bbox[1] - bump * h
             bbox[2] = bbox[2] + bump * w
             bbox[3] = bbox[3] + bump * h
+
+
+def filter_yolo_output(yolo_output):
+    """
+    todo: filter yolo output for undesired bboxes:
+      wrong h/w ratio
+      confidence too low
+    """
+    for i_image, yolo_output_per_image in enumerate(yolo_output):
+        i_bbox_to_exclude = []
+        for i_bbox, bbox in enumerate(yolo_output_per_image):
+            x0, y0, x1, y1 = bbox[:4]
+            w = x1-x0
+            h = y1-y0
+
+            # too big:
+            if w*h > 61440:  # 0.15 * 640 * 640
+                i_bbox_to_exclude.append(i_bbox)
+                continue
+
+            # dead zone defined as:
+            # 1/3 * W < x_center < 2/3 * W
+            # y_center > H/2
+            if 213.3 < 0.5 * (x0 + x1) < 426 and 0.5 * (y0 + y1) > 320:
+                i_bbox_to_exclude.append(i_bbox)
+                continue
+
+        yolo_output[i_image] = [bbox for i, bbox in enumerate(yolo_output_per_image) if i not in i_bbox_to_exclude]
