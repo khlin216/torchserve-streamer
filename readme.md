@@ -127,6 +127,15 @@ kubectl apply -f .
 kubectl get svc -o wide
 ```
 
+build a new image like this:
+```
+$ cd torchserve
+$ python methods/torchserve2mar.py
+$ docker build -t torchserve-repo -f Dockerfiles/Dockerfile.gpu .
+$ docker tag torchserve-repo:latest 814594265042.dkr.ecr.us-east-2.amazonaws.com/torchserve-repo:latest
+$ docker push 814594265042.dkr.ecr.us-east-2.amazonaws.com/torchserve-repo:latest
+```
+
 after you finish building the infrastructure (make sure what are you using a GPU cluster or a CPU cluster)
 
 Build an image depending on the type of the cluster in ```torchserve/Dockerfiles/```
@@ -179,3 +188,7 @@ first, create .mar for new model:
 * edit `configs/configs.cpu.properties` to add new model using similar syntax
 * push image to ecr and follow push instructions on there
 * delete `torchserve` deployment and bring it up again
+
+current model weights are:
+  - fullyolo2/weights/best.pt
+  - version13/checkpoints/epoch=45-step=4500.ckpt
