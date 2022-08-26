@@ -105,7 +105,7 @@ class TriangleHandler(BaseHandler):
         idx = str(uuid.uuid4())
         self.context.metrics.add_time(
             'YoloInferenceTriangleTimeForBatch',
-            (time.time() - tic) * 1000, 
+            (time.time() - tic) * 1000,
             idx, 'ms'
         )
 
@@ -133,6 +133,14 @@ class TriangleHandler(BaseHandler):
                 n_batch=VOD_TRIANGLE_BATCHES,
                 device=self.device
             )):
+            tic_justinf = time.time()
+            vertices = vod_triangle_inference(triangles, self.vod_triangle_model, self.vod_triangle_normalize, device=self.device)
+            idx = str(uuid.uuid4())
+            self.context.metrics.add_time(
+                'TrianglesInternalInferenceTimeForBatch',
+                (time.time() - tic_justinf) * 1000,
+                idx, 'ms'
+            )
 
             tic_inference = time.time()
             vertices = vod_triangle_inference(triangles, self.vod_triangle_model, self.vod_triangle_normalize, device=self.device)
