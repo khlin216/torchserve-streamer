@@ -1,14 +1,9 @@
 from collections import defaultdict
-from distutils.dir_util import copy_tree
-import json
-from unittest import result
-from PIL import Image
 import uuid
 import time
 
 import numpy as np
 import base64
-import mmcv
 import cv2
 import torch
 from ts.torch_handler.base_handler import BaseHandler
@@ -207,6 +202,7 @@ class TriangleHandler(BaseHandler):
             data_preprocess= data_preprocess.to(self.device)
             if not self._is_explain():
                 yolo_output = self.inference_triangles(data_preprocess)
+                filter_yolo_output(yolo_output)
                 broaden_yolo_output(yolo_output, 0.15)  # force yolo to get mode context to help stage2
                 vod_vertices = self.inference_vertices(data_preprocess, triangles_bboxes=yolo_output)
             else:
