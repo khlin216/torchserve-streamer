@@ -9,7 +9,7 @@ resource "aws_eks_node_group" "nodegroup_gpu" {
   capacity_type = "ON_DEMAND"
   disk_size = 30
   scaling_config {
-    min_size     = 0
+    min_size     = 1 
     max_size     = 3
     desired_size = 1 
   }
@@ -28,7 +28,7 @@ resource "aws_eks_node_group" "nodegroup_gpu" {
 
 resource "aws_eks_node_group" "nodegroup_gpu_spot" {
   cluster_name    = aws_eks_cluster.eks.name
-  node_group_name = "${var.tag}-group-gpu"
+  node_group_name = "${var.tag}-group-gpu-spot"
   node_role_arn   = aws_iam_role.nodegroup.arn
   subnet_ids      = data.aws_subnet_ids.default.ids
   instance_types = ["g4dn.xlarge"]
@@ -37,8 +37,8 @@ resource "aws_eks_node_group" "nodegroup_gpu_spot" {
   disk_size = 30
   scaling_config {
     min_size     = 0
-    max_size     = 3
-    desired_size = 4    
+    max_size     = 10 
+    desired_size = 4
   }
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
@@ -85,7 +85,7 @@ resource "aws_eks_node_group" "nodegroup_cpu_master" {
   
   capacity_type = "ON_DEMAND"
   scaling_config {
-    desired_size = 1
+    desired_size = 2  
     max_size     = 4
     min_size     = 0
   }
