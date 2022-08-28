@@ -190,7 +190,7 @@ class TriangleHandler(BaseHandler):
                 data_preprocess = adjust_gamma(data_preprocess, 0.5)
                 if not self._is_explain():
                     yolo_output = self.inference_triangles(data_preprocess)
-                    filter_yolo_output(yolo_output)
+                    # filter_yolo_output(yolo_output)
                     broaden_yolo_output(yolo_output, 0.15)  # force yolo to get mode context to help stage2
                     vod_vertices = self.inference_vertices(data_preprocess, triangles_bboxes=yolo_output)
                 else:
@@ -201,7 +201,7 @@ class TriangleHandler(BaseHandler):
             data_preprocess = adjust_gamma(data_preprocess, 0.5)
             if not self._is_explain():
                 yolo_output = self.inference_triangles(data_preprocess)
-                filter_yolo_output(yolo_output)
+                # filter_yolo_output(yolo_output)
                 broaden_yolo_output(yolo_output, 0.15)  # force yolo to get mode context to help stage2
                 vod_vertices = self.inference_vertices(data_preprocess, triangles_bboxes=yolo_output)
             else:
