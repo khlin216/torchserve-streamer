@@ -136,10 +136,6 @@ class TriangleHandler(BaseHandler):
                 (time.time() - tic_justinf) * 1000,
                 idx, 'ms'
             )
-
-            tic_inference = time.time()
-            vertices = vod_triangle_inference(triangles, self.vod_triangle_model, self.vod_triangle_normalize, device=self.device)
-            idx = str(uuid.uuid4())
             for translator, triangle_vertices in zip(translators, vertices):
                 tr_vert = triangle_vertices.tolist()
                 bbox = triangles_bboxes[translator.img_index][translator.triangle_index]
