@@ -9,6 +9,7 @@ import torch
 from ts.torch_handler.base_handler import BaseHandler
 from ilock import ILock
 import warnings
+from torchvision.transforms.functional import adjust_gamma
 
 from methods.constants import (
     CUDA_ENABLED,
@@ -185,7 +186,8 @@ class TriangleHandler(BaseHandler):
         tic = time.time()
         if CUDA_ENABLED:
             with ILock("torchserve-mutex"):
-                data_preprocess= data_preprocess.to(self.device)
+                data_preprocess = data_preprocess.to(self.device)
+                data_preprocess = adjust_gamma(data_preprocess, 0.5)
                 if not self._is_explain():
                     yolo_output = self.inference_triangles(data_preprocess)
                     filter_yolo_output(yolo_output)
@@ -195,7 +197,8 @@ class TriangleHandler(BaseHandler):
                     vod_vertices = self.explain_handle(data_preprocess, data)
                 torch.cuda.empty_cache()
         else:
-            data_preprocess= data_preprocess.to(self.device)
+            data_preprocess = data_preprocess.to(self.device)
+            data_preprocess = adjust_gamma(data_preprocess, 0.5)
             if not self._is_explain():
                 yolo_output = self.inference_triangles(data_preprocess)
                 filter_yolo_output(yolo_output)
