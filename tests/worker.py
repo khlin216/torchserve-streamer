@@ -12,15 +12,15 @@ if os.environ.get("EKS", "False") == "True":
     ip = "torchserve-elb:9001"
     print("TARGET ELB IP IS", ip)
 all_det = f"http://{ip}/predictions/triangle"
-
-IMG_PATH = "../torchserve/predictors/triangle/img.png"
+print(ip)
+IMG_PATH = "./triangles_heavy_img.png"
 IMG_COORDS =[[182, 38, 229, 102]]
 
 def request_json():
 
     decompressed_image_bytes = open(IMG_PATH, "rb").read()
     #print(len(decompressed_image_bytes))
-    response_raw = requests.put(all_det, data=decompressed_image_bytes)
+    response_raw = requests.put(all_det, data=decompressed_image_bytes, timeout=10)
     #print(response_raw.content)
     response_json = response_raw.json()
     
@@ -44,6 +44,7 @@ class Worker(Thread):
         self.logs = []
         self.debug = debug
         self.done = False
+        self.run_time_start = None
 
     
 
@@ -57,11 +58,12 @@ class Worker(Thread):
         bst = time.time()
         time_elapsed = 0 
         try:
+            self.run_time_start = time.time()
             blocks, time_elapsed = request_json()
             
             #assert equals(blocks, IMG_COORDS), " error from server side" + str(len(blocks)) + " " + str(blocks)
             #print(blocks.keys())
-            assert "img_num" in blocks,"assertion error"
+            assert "img_index" in blocks,f"assertion error blocks are {str(blocks)[:100]}"
             error_log.append({
                 "thread_id": self.threadID,
                 "experiment#": self.experiment,

@@ -14,7 +14,7 @@ class Swarm:
         self.debug = debug
         self.image_path = image_path
     
-    def run_experiment(self, interval=20, fps=120):
+    def run_experiment(self, interval=40, fps=20):
         print(f"Running experiment #={self.workers_number}")
         import time
         resp_time, count, success, tic =0, 0, 0, time.time()
@@ -26,7 +26,7 @@ class Swarm:
             
             for worker in old_workers:
                 resp_time += worker.log["response_time"]
-                # print(worker.log["exception"])
+                print(worker.log)
                 count += 1
                 success += 1 if worker.log["msg"] == "success" else 0
             int_sec = int(time.time() - tic) 
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     print("Started")
     for i in range(TOTAL_LEN):
         swarm = Swarm(300,0,0,0)
-        resp_time, success, count = swarm.run_experiment(fps=1000)
+        resp_time, success, count = swarm.run_experiment(fps=60)
         successes += success
         counts += count
         resp_time += resp_time

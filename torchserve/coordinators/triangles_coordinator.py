@@ -1,7 +1,6 @@
 from collections import defaultdict
 import uuid
 import time
-
 import numpy as np
 import base64
 import cv2
@@ -30,7 +29,7 @@ from methods.misc import (
     broaden_yolo_output,
     filter_yolo_output,
 )
-
+from ts.metrics.dimension import Dimension
 
 class TriangleHandler(BaseHandler):
     
@@ -51,9 +50,10 @@ class TriangleHandler(BaseHandler):
         # assert self.device == "cuda", "GPU ISNT RECOGNIZED"
         print("DEVICE", self.device)
         self.triangle_model = load_model(TRIANGLE_MODEL_PATH, map_location=self.device)
+        print(VOD_TRIANGLE_PATH)
         self.vod_triangle_model, self.vod_triangle_normalize = vod_triangle_fetch_model(ckpt=VOD_TRIANGLE_PATH, device=MAP_LOCATION)
         print("loaded yolo")
-
+        self.triangle_count_dm = Dimension('level','trianglescount')
         # warm up triangle model
         if self.device != 'cpu':
             self.triangle_model(torch.zeros(1, 3, 640, 640).to(self.device).type_as(next(self.triangle_model.parameters())))
@@ -71,7 +71,7 @@ class TriangleHandler(BaseHandler):
         images = []
         for row in data:
             image = row.get('data') or row.get('body')
-            # self.context.metrics.add_metric('PackageSize', len(image) // 8000, 'KB', str(uuid.uuid4()))
+
             if isinstance(image, str):
                 image = base64.b64decode(image)
 
@@ -159,7 +159,7 @@ class TriangleHandler(BaseHandler):
             (time.time() - tic) * 1000, 
             idx, 'ms'
         )
-        self.context.metrics.add_metric('Stage2TotalTrianglesNumber', triangles_cnt_, idx, 'Triangles')
+        self.context.metrics.add_counter('Stage2TotalTrianglesNumber', triangles_cnt_, idx)
         return list(map(lambda x: x[1], results))
 
     def handle(self, data, context):
@@ -177,23 +177,23 @@ class TriangleHandler(BaseHandler):
          
         metrics = self.context.metrics
         idx = str(uuid.uuid4())
-        metrics.add_metric('BatchSize', len(data), idx, 'Batches')
+        metrics.add_counter('BatchSize', len(data), idx)
 
         tic = time.time()
         data_preprocess = self.preprocess(data)
         metrics.add_time('PreprocessingTimeForBatch', (time.time() - tic) * 1000, idx,  'ms')
         tic = time.time()
         if CUDA_ENABLED:
-            with ILock("torchserve-mutex"):
-                data_preprocess= data_preprocess.to(self.device)
-                if not self._is_explain():
-                    yolo_output = self.inference_triangles(data_preprocess)
-                    filter_yolo_output(yolo_output)
-                    broaden_yolo_output(yolo_output, 0.15)  # force yolo to get mode context to help stage2
-                    vod_vertices = self.inference_vertices(data_preprocess, triangles_bboxes=yolo_output)
-                else:
-                    vod_vertices = self.explain_handle(data_preprocess, data)
-                torch.cuda.empty_cache()
+            # with ILock("torchserve-mutex"): # dont use if models are slow 
+            data_preprocess= data_preprocess.to(self.device)
+            if not self._is_explain():
+                yolo_output = self.inference_triangles(data_preprocess)
+                filter_yolo_output(yolo_output)
+                broaden_yolo_output(yolo_output, 0.15)  # force yolo to get mode context to help stage2
+                vod_vertices = self.inference_vertices(data_preprocess, triangles_bboxes=yolo_output)
+            else:
+                vod_vertices = self.explain_handle(data_preprocess, data)
+            torch.cuda.empty_cache()
         else:
             data_preprocess= data_preprocess.to(self.device)
             if not self._is_explain():
@@ -220,6 +220,8 @@ if __name__ == '__main__':
 
             def add_metric(self, *args, **kwargs):
                 print(str(args))
+            def add_counter(self, *args, **kwargs):
+                print(str(args))
 
     class Temp:
         def __init__(self, *args, **kwargs) -> None:
@@ -233,44 +235,45 @@ if __name__ == '__main__':
     print("tmp", Temp())
 
     # fname = "./predictors/triangle/fname_810.png"
-    fname = "./predictors/triangle/Untitled.png"
+    fname = "./predictors/triangle/fname_810.png"
     img = cv2.cvtColor(cv2.imread(fname), cv2.COLOR_BGR2RGB)
-    img = cv2.resize(img, (640, 640))
+    img = cv2.resize(img, (640, 640)).astype(np.uint8)
     img_bytes = img.tobytes()
+    open("../tests/triangles_heavy_img.png", "wb").write(img_bytes)
 
     tic = time.time()
     handler = TriangleHandler().initialize(Temp())
     #exit(0)
     print("Time for init", time.time() - tic)
-    for _ in range(1):
+    for _ in range(100):
         tic = time.time()
-        results = handler.handle([{"data" : img_bytes} for _ in range(1)], Temp())
+        results = handler.handle([{"data" : img_bytes} for _ in range(20)], Temp())
         toc = time.time()
         print("Handling Time", toc  - tic)
         #print(f"first results: {results[0]}")
 
-    for res in results[0]["triangles"]:
-        import matplotlib.pyplot as plt
+    # for res in results[0]["triangles"]:
+    #     import matplotlib.pyplot as plt
 
-        xs, ys = [], []
-        for vert in res["bbox"]:
-            x_ = vert["x"]
-            y_ = vert["y"]
-            xs.append(x_)
-            ys.append(y_)
+    #     xs, ys = [], []
+    #     for vert in res["bbox"]:
+    #         x_ = vert["x"]
+    #         y_ = vert["y"]
+    #         xs.append(x_)
+    #         ys.append(y_)
 
-        cv2.rectangle(img, [xs[0], ys[0]], [xs[1], ys[1]], (0, 255, 0), thickness=2)
-        plt.imshow(img)
-        xs, ys = [], []
+    #     cv2.rectangle(img, [xs[0], ys[0]], [xs[1], ys[1]], (0, 255, 0), thickness=2)
+    #     plt.imshow(img)
+    #     xs, ys = [], []
 
-        for vert in res["vertices"]:
-            x_ = vert["x"]
-            y_ = vert["y"]
-            xs.append(x_)
-            ys.append(y_)
-        print(res)
-        plt.scatter(xs,ys)
-    dirname = "deleteme"
-    if not os.path.isdir(dirname):
-        os.mkdir(dirname)
-    plt.savefig(f"./{dirname}/giff.png")
+    #     for vert in res["vertices"]:
+    #         x_ = vert["x"]
+    #         y_ = vert["y"]
+    #         xs.append(x_)
+    #         ys.append(y_)
+    #     print(res)
+    #     plt.scatter(xs,ys)
+    # dirname = "deleteme"
+    # if not os.path.isdir(dirname):
+    #     os.mkdir(dirname)
+    # plt.savefig(f"./{dirname}/giff.png")
