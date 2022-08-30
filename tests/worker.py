@@ -20,7 +20,7 @@ def request_json():
 
     decompressed_image_bytes = open(IMG_PATH, "rb").read()
     #print(len(decompressed_image_bytes))
-    response_raw = requests.put(all_det, data=decompressed_image_bytes, timeout=10)
+    response_raw = requests.put(all_det, data=decompressed_image_bytes, timeout=2)
     #print(response_raw.content)
     response_json = response_raw.json()
     
