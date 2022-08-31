@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: torchserve-deployment-gpu
 spec:
-  replicas: 3 
+  replicas: 4
   selector:
     matchLabels:
       name: torchserve-elb
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: torchserve-app
-          image: 814594265042.dkr.ecr.us-east-2.amazonaws.com/torchserve-repo:latest
+          image: 814594265042.dkr.ecr.us-east-2.amazonaws.com/torchserve-repo:1.7
           imagePullPolicy: Always
           ports:
        
