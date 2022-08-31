@@ -62,6 +62,8 @@ class CoordinatesTranslator:
               f"origin triangle size tri.shape = {self.tri}\n"
               f"resizing to {self.resize_shape}")
 
+def log_metric(*args, **kwargs):
+    print(str(args), str(kwargs))
 
 def fetch_triangles_translators_batches(yolo_output, imgs, n_batch, device):
     # cut triangle
