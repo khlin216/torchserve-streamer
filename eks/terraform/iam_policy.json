@@ -23,6 +23,9 @@
                 "sts:AssumeRole",
                 "iam:ListRolePolicies",
                 "ecr:*",
+                "s3:GetBucketLocation",
+                "s3:ListAllMyBuckets",
+                "s3:ListBucket",
                 "iam:PassRole"
             ],
             "Resource": "*"
@@ -32,6 +35,14 @@
             "Effect": "Allow",
             "Action": "eks:*",
             "Resource": "*"
+        },
+        {
+            "Sid": "s3access",
+            "Effect": "Allow",
+            "Action": [
+                "s3:*"
+            ],
+            "Resource": "arn:aws:s3:::terraform-state-stream-torch/*"
         }
     ]
 }
