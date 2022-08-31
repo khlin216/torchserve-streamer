@@ -185,17 +185,17 @@ class TriangleHandler(BaseHandler):
         metrics.add_time('PreprocessingTimeForBatch', (time.time() - tic) * 1000, idx,  'ms')
         tic = time.time()
         if CUDA_ENABLED:
-            with ILock("torchserve-mutex"):
-                data_preprocess = data_preprocess.to(self.device)
-                data_preprocess = adjust_gamma(data_preprocess, 0.5)
-                if not self._is_explain():
-                    yolo_output = self.inference_triangles(data_preprocess)
-                    # filter_yolo_output(yolo_output)
-                    broaden_yolo_output(yolo_output, 0.15)  # force yolo to get mode context to help stage2
-                    vod_vertices = self.inference_vertices(data_preprocess, triangles_bboxes=yolo_output)
-                else:
-                    vod_vertices = self.explain_handle(data_preprocess, data)
-                torch.cuda.empty_cache()
+            # with ILock("torchserve-mutex"):
+            data_preprocess = data_preprocess.to(self.device)
+            data_preprocess = adjust_gamma(data_preprocess, 0.5)
+            if not self._is_explain():
+                yolo_output = self.inference_triangles(data_preprocess)
+                # filter_yolo_output(yolo_output)
+                broaden_yolo_output(yolo_output, 0.15)  # force yolo to get mode context to help stage2
+                vod_vertices = self.inference_vertices(data_preprocess, triangles_bboxes=yolo_output)
+            else:
+                vod_vertices = self.explain_handle(data_preprocess, data)
+            torch.cuda.empty_cache()
         else:
             data_preprocess = data_preprocess.to(self.device)
             data_preprocess = adjust_gamma(data_preprocess, 0.5)
