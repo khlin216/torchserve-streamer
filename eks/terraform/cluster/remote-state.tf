@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "terraform-state-stream-torch"
+    bucket = "terraform-streamtorch"
     key    = "cluster/terraform.tfstate"
     region = "us-east-2"
     }
